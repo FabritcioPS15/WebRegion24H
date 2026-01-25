@@ -1,0 +1,122 @@
+import { Search, Menu, Youtube, Facebook, Twitter, X } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useNews } from '../context/NewsContext';
+import { motion } from 'framer-motion';
+
+export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { selectedCategory, setSelectedCategory } = useNews();
+
+  const currentDate = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  return (
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-[60]">
+      {/* Top Bar */}
+      <div className="bg-accent text-white py-1.5 text-[10px] font-black tracking-[0.2em] text-center uppercase">
+        <span className="inline-flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-brand rounded-full animate-pulse" />
+          Edición Digital • Perú y el Mundo
+        </span>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        {/* Masthead */}
+        <div className="py-6 md:py-10 border-b border-gray-100 mb-0 flex flex-col items-center">
+          <div className="w-full flex justify-between items-center text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 md:mb-8 font-sans">
+            <span className="hidden md:block">{currentDate}</span>
+            <div className="flex items-center gap-6">
+              <Youtube className="h-4 w-4 cursor-pointer hover:text-brand transition-colors" />
+              <Facebook className="h-4 w-4 cursor-pointer hover:text-brand transition-colors" />
+              <Twitter className="h-4 w-4 cursor-pointer hover:text-brand transition-colors" />
+            </div>
+          </div>
+
+          <Link to="/" className="text-center group">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="text-4xl sm:text-6xl lg:text-8xl font-serif font-black text-accent tracking-tighter mb-2 leading-none">
+                REGIÓN <span className="text-brand">24H</span>
+              </h1>
+              <div className="h-0.5 w-1/4 mx-auto bg-brand mb-4 group-hover:w-full transition-all duration-700" />
+              <p className="font-serif italic text-xs md:text-sm text-gray-400 tracking-widest">FUNDADO PARA LA EXCELENCIA INFORMATIVA</p>
+            </motion.div>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="relative border-t border-black py-0">
+          <div className="flex items-center justify-between">
+            <button
+              className="lg:hidden py-4 px-2 text-accent"
+              onClick={toggleMobileMenu}
+            >
+              <div className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                Secciones
+              </div>
+            </button>
+
+            <ul className={`hidden lg:flex items-center w-full ${mobileMenuOpen ? 'flex' : ''} flex-col lg:flex-row justify-center`}>
+              {[
+                'Información', 'Nacionales', 'Internacionales',
+                'Economía', 'Deportes', 'Región', 'Más'
+              ].map((item) => (
+                <li key={item} className="group list-none">
+                  <button
+                    onClick={() => setSelectedCategory(item)}
+                    className={`block py-4 px-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative font-sans ${selectedCategory === item ? 'text-brand' : 'text-accent/80 hover:text-brand'
+                      }`}
+                  >
+                    {item}
+                    <span className={`absolute bottom-0 left-0 w-full h-1 bg-brand transition-transform origin-center ${selectedCategory === item ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                      }`} />
+                  </button>
+                </li>
+              ))}
+              <li className="flex items-center px-4">
+                <Search className="h-4 w-4 text-accent cursor-pointer hover:text-brand" />
+              </li>
+            </ul>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-xl overflow-hidden z-20"
+            >
+              {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Más'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    setSelectedCategory(item);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left block py-4 px-6 text-xs font-bold uppercase tracking-widest border-b border-gray-50 hover:bg-gray-50 ${selectedCategory === item ? 'text-brand bg-gray-50' : 'text-accent'
+                    }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
+}
+

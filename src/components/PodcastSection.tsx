@@ -1,0 +1,81 @@
+import { Play, Clock, Radio } from 'lucide-react';
+import { useNews } from '../context/NewsContext';
+import { motion } from 'framer-motion';
+
+export default function PodcastSection() {
+  const { podcasts } = useNews();
+  const currentPodcast = podcasts[0];
+
+  if (!currentPodcast) {
+    return null;
+  }
+
+  return (
+    <section className="bg-accent py-24 my-20 overflow-hidden border-y-8 border-brand">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center gap-6 mb-16 border-b border-white/10 pb-8">
+          <h2 className="text-sm font-black text-brand uppercase tracking-[0.5em]">AUDIENCIA EJECUTIVA</h2>
+          <div className="flex-1 h-[1px] bg-white/5"></div>
+          <div className="px-4 py-2 border border-white/10 text-[10px] font-black text-gray-400 tracking-widest uppercase flex items-center gap-3">
+            <div className="w-2 h-2 bg-brand rounded-full animate-pulse" />
+            EMISIÓN CONTINUA
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative bg-black group cursor-pointer h-[500px] border-4 border-white/5 shadow-2xl"
+          >
+            <img
+              src={currentPodcast.image}
+              alt="Podcast"
+              className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition duration-1000 grayscale group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-brand text-white p-10 group-hover:scale-110 transition-all duration-500 shadow-2xl group-hover:shadow-brand/50">
+                <Play className="h-12 w-12 fill-white" />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-white space-y-10"
+          >
+            <div className="space-y-4">
+              <p className="text-brand font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3">
+                <Radio className="h-5 w-5" />
+                PODCAST EXCLUSIVO
+              </p>
+              <h3 className="text-4xl md:text-6xl font-serif font-black leading-[1.1] tracking-tight">
+                {currentPodcast.title}
+              </h3>
+            </div>
+
+            <p className="text-gray-400 text-xl font-serif italic leading-relaxed border-l-4 border-brand pl-8 py-2">
+              "{currentPodcast.description}"
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 pt-10 border-t border-white/10">
+              <div className="flex items-center gap-10 text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <div className="flex items-center gap-3">
+                  <Clock size={16} className="text-brand" />
+                  <span>DURACIÓN: {currentPodcast.duration}</span>
+                </div>
+                <div>ESTRENO: HOY</div>
+              </div>
+              <button className="bg-white text-accent px-10 py-5 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-brand hover:text-white transition-all shadow-xl active:scale-95">
+                Ver Directorio
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
