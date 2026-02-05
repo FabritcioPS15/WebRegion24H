@@ -58,11 +58,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <Phone size={16} className="text-brand shrink-0" />
-                <span>+51 1 445 8800</span>
+                <span>+51 9580 777 827</span>
               </li>
               <li className="flex items-center gap-4">
                 <Mail size={16} className="text-brand shrink-0" />
-                <span>executive@region24h.pe</span>
+                <span>ejecutivo@region24h.pe</span>
               </li>
             </ul>
           </div>

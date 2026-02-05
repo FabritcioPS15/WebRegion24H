@@ -1,216 +1,219 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { NewsArticle, Podcast, Video } from '../types/news';
+import { supabase } from '../lib/supabase';
 
 interface NewsContextType {
   news: NewsArticle[];
   podcasts: Podcast[];
   videos: Video[];
+  displayNews: NewsArticle[];
+  displayPodcasts: Podcast[];
+  displayVideos: Video[];
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
-  addNews: (article: Omit<NewsArticle, 'id'>) => void;
-  updateNews: (id: string, article: Partial<NewsArticle>) => void;
-  deleteNews: (id: string) => void;
-  addPodcast: (podcast: Omit<Podcast, 'id'>) => void;
-  updatePodcast: (id: string, podcast: Partial<Podcast>) => void;
-  deletePodcast: (id: string) => void;
-  addVideo: (video: Omit<Video, 'id'>) => void;
-  updateVideo: (id: string, video: Partial<Video>) => void;
-  deleteVideo: (id: string) => void;
+  addNews: (article: Omit<NewsArticle, 'id'>) => Promise<void>;
+  updateNews: (id: string, article: Partial<NewsArticle>) => Promise<void>;
+  deleteNews: (id: string) => Promise<void>;
+  addPodcast: (podcast: Omit<Podcast, 'id'>) => Promise<void>;
+  updatePodcast: (id: string, podcast: Partial<Podcast>) => Promise<void>;
+  deletePodcast: (id: string) => Promise<void>;
+  addVideo: (video: Omit<Video, 'id'>) => Promise<void>;
+  updateVideo: (id: string, video: Partial<Video>) => Promise<void>;
+  deleteVideo: (id: string) => Promise<void>;
+  uploadFile: (file: File, folder: 'news' | 'podcasts' | 'videos') => Promise<string>;
+  changedIds: Set<string>;
+  isPreviewMode: boolean;
+  setIsPreviewMode: (value: boolean) => void;
+  clearChanges: () => void;
+  activeDraft: NewsArticle | Podcast | Video | null;
+  setActiveDraft: (draft: NewsArticle | Podcast | Video | null) => void;
+  isLoading: boolean;
 }
 
 const NewsContext = createContext<NewsContextType | undefined>(undefined);
 
-const initialNews: NewsArticle[] = [
-  {
-    id: '1',
-    title: "Gobierno anuncia nuevas medidas económicas para el segundo semestre",
-    subtitle: "Último momento",
-    content: "El gobierno ha anunciado un conjunto de medidas económicas que entrarán en vigor a partir del próximo semestre...",
-    category: "Economía",
-    date: "22 de enero de 2025",
-    time: "14:30",
-    image: "https://images.pexels.com/photos/6894428/pexels-photo-6894428.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    author: "Redacción",
-    tags: ["economía", "gobierno", "medidas"],
-    featured: true,
-    breaking: true
-  },
-  {
-    id: '2',
-    title: "Importante: se anunciará una medida sanitaria hoy",
-    content: "Las autoridades sanitarias han convocado a una conferencia de prensa para anunciar nuevas medidas...",
-    category: "Salud",
-    date: "22 de enero de 2025",
-    time: "13:45",
-    image: "https://images.pexels.com/photos/3958456/pexels-photo-3958456.jpeg?auto=compress&cs=tinysrgb&w=600",
-    author: "Redacción",
-    tags: ["salud", "medidas", "anuncio"],
-    featured: false,
-    breaking: true
-  },
-  {
-    id: '3',
-    title: "Incremento del salario mínimo en debate",
-    content: "El debate sobre el incremento del salario mínimo continúa en el congreso...",
-    category: "Economía",
-    date: "22 de enero de 2025",
-    time: "12:00",
-    image: "https://images.pexels.com/photos/6863332/pexels-photo-6863332.jpeg?auto=compress&cs=tinysrgb&w=600",
-    author: "Redacción",
-    tags: ["salario", "economía", "debate"],
-    featured: false,
-    breaking: false
-  },
-  {
-    id: '4',
-    title: "Apertura de hubs digitales en la región",
-    content: "Se anuncia la apertura de nuevos centros digitales para fomentar la tecnología...",
-    category: "Tecnología",
-    date: "22 de enero de 2025",
-    time: "10:15",
-    image: "https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=600",
-    author: "Redacción",
-    tags: ["tecnología", "hubs", "región"],
-    featured: false,
-    breaking: false
-  },
-  {
-    id: '5',
-    title: "Así cambiará la Av. Arequipa para priorizar el transporte público",
-    content: "El proyecto de remodelación de la Av. Arequipa busca mejorar el transporte público...",
-    category: "Urbanismo",
-    date: "22 de enero de 2025",
-    image: "https://images.pexels.com/photos/1486222/pexels-photo-1486222.jpeg?auto=compress&cs=tinysrgb&w=800",
-    author: "Redacción",
-    tags: ["urbanismo", "transporte", "avenida"],
-    featured: false,
-    breaking: false
-  },
-  {
-    id: '6',
-    title: "Nuevo centro de salud comunitario",
-    content: "Se inaugura un nuevo centro de salud para atender a la comunidad...",
-    category: "Salud",
-    date: "22 de enero de 2025",
-    image: "https://images.pexels.com/photos/127873/pexels-photo-127873.jpeg?auto=compress&cs=tinysrgb&w=800",
-    author: "Redacción",
-    tags: ["salud", "centro", "comunidad"],
-    featured: false,
-    breaking: false
-  },
-  {
-    id: '7',
-    title: "Plan de reforestación en zonas urbanas",
-    content: "Se lanza un ambicioso plan de reforestación para las zonas urbanas...",
-    category: "Medio Ambiente",
-    date: "21 de enero de 2025",
-    image: "https://images.pexels.com/photos/1072179/pexels-photo-1072179.jpeg?auto=compress&cs=tinysrgb&w=800",
-    author: "Redacción",
-    tags: ["reforestación", "medio ambiente", "urbano"],
-    featured: false,
-    breaking: false
-  },
-  {
-    id: '8',
-    title: "Innovación tecnológica en educación pública",
-    content: "Se implementan nuevas tecnologías en la educación pública del país...",
-    category: "Educación",
-    date: "21 de enero de 2025",
-    image: "https://images.pexels.com/photos/5905709/pexels-photo-5905709.jpeg?auto=compress&cs=tinysrgb&w=800",
-    author: "Redacción",
-    tags: ["educación", "tecnología", "innovación"],
-    featured: false,
-    breaking: false
-  }
-];
-
-const initialPodcasts: Podcast[] = [
-  {
-    id: '1',
-    title: "Implementación de IA en las aulas de nivel primaria",
-    description: "Exploramos cómo la inteligencia artificial está transformando la educación primaria, con entrevistas a docentes y expertos en tecnología educativa.",
-    duration: "45 minutos",
-    image: "https://images.pexels.com/photos/7516363/pexels-photo-7516363.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    live: true
-  }
-];
-
-const initialVideos: Video[] = [
-  {
-    id: '1',
-    title: "Entrevista exclusiva: Ministro de Economía",
-    description: "Hablamos con el ministro sobre las nuevas medidas económicas",
-    thumbnail: "https://images.pexels.com/photos/6894428/pexels-photo-6894428.jpeg?auto=compress&cs=tinysrgb&w=800",
-    duration: "15:30",
-    category: "Entrevistas"
-  }
-];
-
 export function NewsProvider({ children }: { children: ReactNode }) {
-  const [news, setNews] = useState<NewsArticle[]>(initialNews);
-  const [podcasts, setPodcasts] = useState<Podcast[]>(initialPodcasts);
-  const [videos, setVideos] = useState<Video[]>(initialVideos);
+  const [news, setNews] = useState<NewsArticle[]>([]);
+  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
+  const [changedIds, setChangedIds] = useState<Set<string>>(new Set());
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [activeDraft, setActiveDraft] = useState<NewsArticle | Podcast | Video | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const addNews = (article: Omit<NewsArticle, 'id'>) => {
-    const newArticle: NewsArticle = {
-      ...article,
-      id: Date.now().toString()
-    };
-    setNews([...news, newArticle]);
+  // Fetch data from Supabase on mount
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [newsRes, podcastsRes, videosRes] = await Promise.all([
+          supabase.from('news').select('*').order('created_at', { ascending: false }),
+          supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
+          supabase.from('videos').select('*').order('created_at', { ascending: false })
+        ]);
+
+        if (newsRes.data) setNews(newsRes.data);
+        if (podcastsRes.data) setPodcasts(podcastsRes.data);
+        if (videosRes.data) setVideos(videosRes.data);
+      } catch (error) {
+        console.error('Error fetching data from Supabase:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const uploadFile = async (file: File, folder: 'news' | 'podcasts' | 'videos') => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('media')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('media')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
   };
 
-  const updateNews = (id: string, updates: Partial<NewsArticle>) => {
-    setNews(news.map(article =>
-      article.id === id ? { ...article, ...updates } : article
-    ));
+  const trackChange = (id: string) => {
+    setChangedIds(prev => new Set(prev).add(id));
   };
 
-  const deleteNews = (id: string) => {
+  const addNews = async (article: Omit<NewsArticle, 'id'>) => {
+    const { data, error } = await supabase.from('news').insert([article]).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setNews([data[0], ...news]);
+      trackChange(data[0].id);
+    }
+  };
+
+  const updateNews = async (id: string, updates: Partial<NewsArticle>) => {
+    const { data, error } = await supabase.from('news').update(updates).eq('id', id).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setNews(news.map(article => article.id === id ? data[0] : article));
+      trackChange(id);
+    }
+  };
+
+  const deleteNews = async (id: string) => {
+    const { error } = await supabase.from('news').delete().eq('id', id);
+    if (error) throw error;
     setNews(news.filter(article => article.id !== id));
+    setChangedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
 
-  const addPodcast = (podcast: Omit<Podcast, 'id'>) => {
-    const newPodcast: Podcast = {
-      ...podcast,
-      id: Date.now().toString()
-    };
-    setPodcasts([...podcasts, newPodcast]);
+  const addPodcast = async (podcast: Omit<Podcast, 'id'>) => {
+    const { data, error } = await supabase.from('podcasts').insert([podcast]).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setPodcasts([data[0], ...podcasts]);
+      trackChange(data[0].id);
+    }
   };
 
-  const updatePodcast = (id: string, updates: Partial<Podcast>) => {
-    setPodcasts(podcasts.map(podcast =>
-      podcast.id === id ? { ...podcast, ...updates } : podcast
-    ));
+  const updatePodcast = async (id: string, updates: Partial<Podcast>) => {
+    const { data, error } = await supabase.from('podcasts').update(updates).eq('id', id).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setPodcasts(podcasts.map(p => p.id === id ? data[0] : p));
+      trackChange(id);
+    }
   };
 
-  const deletePodcast = (id: string) => {
-    setPodcasts(podcasts.filter(podcast => podcast.id !== id));
+  const deletePodcast = async (id: string) => {
+    const { error } = await supabase.from('podcasts').delete().eq('id', id);
+    if (error) throw error;
+    setPodcasts(podcasts.filter(p => p.id !== id));
+    setChangedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
 
-  const addVideo = (video: Omit<Video, 'id'>) => {
-    const newVideo: Video = {
-      ...video,
-      id: Date.now().toString()
-    };
-    setVideos([...videos, newVideo]);
+  const addVideo = async (video: Omit<Video, 'id'>) => {
+    const { data, error } = await supabase.from('videos').insert([video]).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setVideos([data[0], ...videos]);
+      trackChange(data[0].id);
+    }
   };
 
-  const updateVideo = (id: string, updates: Partial<Video>) => {
-    setVideos(videos.map(video =>
-      video.id === id ? { ...video, ...updates } : video
-    ));
+  const updateVideo = async (id: string, updates: Partial<Video>) => {
+    const { data, error } = await supabase.from('videos').update(updates).eq('id', id).select();
+    if (error) throw error;
+    if (data && data[0]) {
+      setVideos(videos.map(v => v.id === id ? data[0] : v));
+      trackChange(id);
+    }
   };
 
-  const deleteVideo = (id: string) => {
-    setVideos(videos.filter(video => video.id !== id));
+  const deleteVideo = async (id: string) => {
+    const { error } = await supabase.from('videos').delete().eq('id', id);
+    if (error) throw error;
+    setVideos(videos.filter(v => v.id !== id));
+    setChangedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
+
+  const clearChanges = () => {
+    setChangedIds(new Set());
+    setActiveDraft(null);
+  };
+
+  // Computed data for Public View / Preview
+  const displayNews = (isPreviewMode && activeDraft && 'content' in activeDraft)
+    ? (activeDraft.id
+      ? news.map(n => n.id === activeDraft.id ? activeDraft : n)
+      : [{ ...activeDraft, id: 'new_draft_id' }, ...news]) as NewsArticle[]
+    : news.filter(n => n.status === 'published' || !n.status); // Default to visible if status is missing
+
+  const displayPodcasts = (isPreviewMode && activeDraft && 'description' in activeDraft && !('content' in activeDraft))
+    ? (activeDraft.id
+      ? podcasts.map(p => p.id === activeDraft.id ? activeDraft : p)
+      : [{ ...activeDraft, id: 'new_draft_id' }, ...podcasts]) as Podcast[]
+    : podcasts.filter(p => p.status === 'published' || !p.status);
+
+  const displayVideos = (isPreviewMode && activeDraft && 'thumbnail' in activeDraft)
+    ? (activeDraft.id
+      ? videos.map(v => v.id === activeDraft.id ? activeDraft : v)
+      : [{ ...activeDraft, id: 'new_draft_id' }, ...videos]) as Video[]
+    : videos.filter(v => v.status === 'published' || !v.status);
+
+  const effectiveChangedIds = new Set(changedIds);
+  if (activeDraft) {
+    effectiveChangedIds.add(activeDraft.id || 'new_draft_id');
+  }
 
   return (
     <NewsContext.Provider value={{
       news,
       podcasts,
       videos,
+      displayNews,
+      displayPodcasts,
+      displayVideos,
       selectedCategory,
       setSelectedCategory,
       addNews,
@@ -221,7 +224,15 @@ export function NewsProvider({ children }: { children: ReactNode }) {
       deletePodcast,
       addVideo,
       updateVideo,
-      deleteVideo
+      deleteVideo,
+      uploadFile,
+      changedIds: effectiveChangedIds,
+      isPreviewMode,
+      setIsPreviewMode,
+      clearChanges,
+      activeDraft,
+      setActiveDraft,
+      isLoading
     }}>
       {children}
     </NewsContext.Provider>

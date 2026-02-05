@@ -1,14 +1,19 @@
 import { useParams, Link } from 'react-router-dom';
 import { useNews } from '../context/NewsContext';
 import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight } from 'lucide-react';
+import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
 
-export default function NewsDetailPage() {
+interface NewsDetailPageProps {
+    previewArticle?: NewsArticle;
+}
+
+export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) {
     const { id } = useParams();
     const { news } = useNews();
 
-    const article = news.find(a => a.id === id);
+    const article = previewArticle || news.find(a => a.id === id);
 
     if (!article) {
         return (
@@ -128,13 +133,37 @@ export default function NewsDetailPage() {
                             <div className="border-t border-gray-100 pt-12">
                                 <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-6">TEMAS RELACIONADOS</h3>
                                 <div className="flex flex-wrap gap-3">
-                                    {article.tags.map((tag, index) => (
+                                    {article.tags.map((tag: string, index: number) => (
                                         <span
                                             key={index}
                                             className="bg-gray-50 border border-transparent px-5 py-2.5 text-[10px] font-black text-accent uppercase tracking-widest hover:border-brand hover:text-brand transition-all cursor-pointer"
                                         >
                                             {tag}
                                         </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {article.links && article.links.length > 0 && (
+                            <div className="border-t border-gray-100 pt-12 mt-12 bg-gray-50/50 p-8">
+                                <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                    <Share2 size={14} /> ENLACES DE INTERÉS
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {article.links.map((link: { label: string; url: string }, index: number) => (
+                                        <a
+                                            key={index}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group flex items-center justify-between p-4 bg-white border border-gray-100 hover:border-brand hover:shadow-lg transition-all"
+                                        >
+                                            <span className="text-xs font-black text-accent uppercase tracking-tighter group-hover:text-brand truncate pr-4">
+                                                {link.label || 'Ver más'}
+                                            </span>
+                                            <ChevronRight size={14} className="text-gray-300 group-hover:text-brand group-hover:translate-x-1 transition-all" />
+                                        </a>
                                     ))}
                                 </div>
                             </div>

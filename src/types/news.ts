@@ -11,6 +11,8 @@ export interface NewsArticle {
   tags?: string[];
   featured?: boolean;
   breaking?: boolean;
+  links?: { label: string; url: string }[];
+  status?: 'published' | 'hidden' | 'draft' | 'pending';
 }
 
 export interface Podcast {
@@ -20,6 +22,7 @@ export interface Podcast {
   duration: string;
   image: string;
   live?: boolean;
+  status?: 'published' | 'hidden' | 'draft' | 'pending';
 }
 
 export interface Video {
@@ -29,4 +32,5 @@ export interface Video {
   thumbnail: string;
   duration: string;
   category: string;
+  status?: 'published' | 'hidden' | 'draft' | 'pending';
 }

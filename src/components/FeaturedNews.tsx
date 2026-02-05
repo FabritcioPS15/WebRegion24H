@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 export default function FeaturedNews() {
-  const { news } = useNews();
+  const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
   const mainNews = news.find(article => article.featured) || news[0] || {
     id: '1',
@@ -33,7 +33,7 @@ export default function FeaturedNews() {
           className="lg:col-span-2"
         >
           <Link to={`/articulo/${mainNews.id}`} className="block">
-            <div className="relative h-[600px] bg-accent group cursor-pointer border border-gray-200">
+            <div className={`relative h-[600px] bg-accent group cursor-pointer border ${isPreviewMode && changedIds.has(mainNews.id) ? 'border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-gray-200'}`}>
               <img
                 src={mainNews.image}
                 alt={mainNews.subtitle || mainNews.title}
@@ -64,7 +64,7 @@ export default function FeaturedNews() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white border-b-2 border-gray-100 pb-6 group cursor-pointer hover:border-brand transition-all duration-300"
+              className={`bg-white border-b-2 pb-6 group cursor-pointer hover:border-brand transition-all duration-300 ${isPreviewMode && changedIds.has(news.id) ? 'border-2 border-red-500 bg-red-50/10' : 'border-gray-100'}`}
             >
               <Link to={`/articulo/${news.id}`} className="block">
                 <div className="flex gap-4">

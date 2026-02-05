@@ -1,9 +1,10 @@
 import { Play, Clock, Radio } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function PodcastSection() {
-  const { podcasts } = useNews();
+  const { displayPodcasts: podcasts, changedIds, isPreviewMode } = useNews();
   const currentPodcast = podcasts[0];
 
   if (!currentPodcast) {
@@ -27,7 +28,7 @@ export default function PodcastSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative bg-black group cursor-pointer h-[500px] border-4 border-white/5 shadow-2xl"
+            className={`relative bg-black group cursor-pointer h-[500px] border-4 shadow-2xl transition-all ${isPreviewMode && changedIds.has(currentPodcast.id) ? 'border-red-500 scale-[1.02] shadow-[0_0_40px_rgba(239,68,68,0.3)]' : 'border-white/5'}`}
           >
             <img
               src={currentPodcast.image}
@@ -69,9 +70,9 @@ export default function PodcastSection() {
                 </div>
                 <div>ESTRENO: HOY</div>
               </div>
-              <button className="bg-white text-accent px-10 py-5 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-brand hover:text-white transition-all shadow-xl active:scale-95">
+              <Link to="/podcasts" className="bg-white text-accent px-10 py-5 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-brand hover:text-white transition-all shadow-xl active:scale-95 block text-center">
                 Ver Directorio
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>

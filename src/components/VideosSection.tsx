@@ -1,9 +1,10 @@
 import { Play, Film } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function VideosSection() {
-  const { videos } = useNews();
+  const { displayVideos: videos, changedIds, isPreviewMode } = useNews();
 
   if (videos.length === 0) {
     return null;
@@ -15,6 +16,10 @@ export default function VideosSection() {
         <div className="flex items-center gap-6 mb-16">
           <h2 className="text-sm font-black text-accent uppercase tracking-[0.5em] border-l-4 border-brand pl-6">Producción Audiovisual</h2>
           <div className="flex-1 h-[1px] bg-gray-100"></div>
+          <Link to="/videos" className="text-xs font-black text-brand uppercase tracking-widest hover:text-accent transition-colors flex items-center gap-2 group">
+            Ver todos
+            <Play className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -25,7 +30,7 @@ export default function VideosSection() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white group cursor-pointer border-b border-gray-50 pb-8 hover:border-brand transition-all duration-300"
+              className={`bg-white group cursor-pointer border-b pb-8 hover:border-brand transition-all duration-300 ${isPreviewMode && changedIds.has(video.id) ? 'border-2 border-red-500 bg-red-50/10 p-4' : 'border-gray-50'}`}
             >
               <div className="relative h-64 overflow-hidden bg-accent border border-gray-100 mb-8">
                 <img
