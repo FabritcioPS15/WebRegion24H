@@ -123,15 +123,25 @@ export default function Header() {
                   </li>
                 ))}
                 <li className="flex items-center px-4 relative">
-                  <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-48 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar..."
-                      className="w-full bg-gray-50 border border-gray-200 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-brand"
-                      autoFocus={isSearchOpen}
-                    />
+                  <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
+                    <div className="relative w-full">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Buscar..."
+                        className="w-full bg-gray-50 border border-gray-200 pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-brand"
+                        autoFocus={isSearchOpen}
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <button
                     onClick={() => setIsSearchOpen(!isSearchOpen)}

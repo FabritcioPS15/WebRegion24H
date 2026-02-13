@@ -1,41 +1,8 @@
 import { Mail, Phone, MapPin, Youtube, Facebook, Instagram, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import SubscriptionForm from './SubscriptionForm';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setStatus('loading');
-    try {
-      const { error } = await supabase
-        .from('subscriptions')
-        .insert([{ email }]);
-
-      if (error) {
-        if (error.code === '23505') {
-          setStatus('error');
-          setMessage('Este correo ya está suscrito.');
-        } else {
-          throw error;
-        }
-      } else {
-        setStatus('success');
-        setEmail('');
-        setMessage('¡Gracias por suscribirte!');
-      }
-    } catch (err: any) {
-      console.error('Subscription error:', err);
-      setStatus('error');
-      setMessage('Hubo un error. Inténtalo de nuevo.');
-    }
-  };
   const categories = [
     "Información",
     "Nacionales",
@@ -107,29 +74,7 @@ export default function Footer() {
               Reciba nuestro boletín matutino con los hechos que mueven el mundo.
             </p>
             <div className="flex flex-col gap-4">
-              <form onSubmit={handleSubscribe} className="flex flex-col gap-4">
-                <input
-                  type="email"
-                  placeholder="Email corporativo"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={status === 'loading' || status === 'success'}
-                  className="w-full px-6 py-4 bg-white/5 text-white border border-white/10 focus:outline-none focus:border-brand tracking-widest text-[10px] font-bold"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={status === 'loading' || status === 'success'}
-                  className={`bg-brand text-white px-6 py-4 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-brand-dark transition-all transform active:scale-[0.98] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {status === 'loading' ? 'Enviando...' : 'Suscribirse'}
-                </button>
-              </form>
-              {message && (
-                <p className={`text-[10px] font-bold tracking-widest uppercase ${status === 'error' ? 'text-red-400' : 'text-brand'}`}>
-                  {message}
-                </p>
-              )}
+              <SubscriptionForm variant="footer" />
             </div>
           </div>
         </motion.div>

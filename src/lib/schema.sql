@@ -119,3 +119,18 @@ INSERT INTO podcasts (title, description, duration, image, live) VALUES
 -- Videos
 INSERT INTO videos (title, description, thumbnail, duration, category) VALUES
 ('Documental: Patrimonio Regional', 'Un viaje visual por los lugares más emblemáticos de nuestra región.', 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80', '18:10', 'Cultura');
+
+-- Subscriptions Table
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Allow public to subscribe (Insert)
+CREATE POLICY "Allow public subscription" ON subscriptions FOR INSERT WITH CHECK (true);
+
+-- Allow viewing subscribers (Select)
+CREATE POLICY "Allow public read access" ON subscriptions FOR SELECT USING (true);

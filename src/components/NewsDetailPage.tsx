@@ -1,9 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useNews } from '../context/NewsContext';
 import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
+import SubscriptionForm from './SubscriptionForm';
 
 interface NewsDetailPageProps {
     previewArticle?: NewsArticle;
@@ -14,6 +16,16 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
     const { news } = useNews();
 
     const article = previewArticle || news.find(a => a.id === id);
+
+    useEffect(() => {
+        if (article) {
+            document.title = `${article.title} | NOTICIAS 24H`;
+            window.scrollTo(0, 0);
+        }
+        return () => {
+            document.title = 'NOTICIAS 24H | Periodismo Independiente';
+        };
+    }, [article]);
 
     if (!article) {
         return (
@@ -173,12 +185,7 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                             <div className="relative z-10">
                                 <h3 className="text-2xl font-serif font-black mb-4">¿Te gustó lo que leíste?</h3>
                                 <p className="text-gray-400 text-sm mb-8 max-w-md">Suscríbete a nuestro boletín diario y recibe las noticias más importantes de la región directamente en tu correo.</p>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <input type="email" placeholder="tu@email.com" className="bg-white/5 border border-white/20 px-6 py-4 text-sm focus:outline-none focus:border-brand flex-1" />
-                                    <button className="bg-brand text-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] hover:bg-white hover:text-accent transition-all">
-                                        Suscribirme
-                                    </button>
-                                </div>
+                                <SubscriptionForm variant="article" className="max-w-md" />
                             </div>
                             <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-brand/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
                         </div>
