@@ -18,9 +18,9 @@ export default function NewsGrid() {
         <div className="flex-1 h-[1px] bg-gray-100"></div>
       </div>
 
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 -mx-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-x-8 md:gap-y-16 md:overflow-visible md:pb-0 md:px-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-x-8 md:gap-y-16">
         {filteredNews.map((article, index) => (
-          <Link to={`/articulo/${article.id}`} key={article.id} className="block group min-w-[85vw] md:min-w-0 snap-center">
+          <Link to={`/articulo/${article.id}`} key={article.id} className="block group">
             <motion.article
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}

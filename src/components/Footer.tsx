@@ -1,7 +1,41 @@
 import { Mail, Phone, MapPin, Youtube, Facebook, Instagram, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .insert([{ email }]);
+
+      if (error) {
+        if (error.code === '23505') {
+          setStatus('error');
+          setMessage('Este correo ya está suscrito.');
+        } else {
+          throw error;
+        }
+      } else {
+        setStatus('success');
+        setEmail('');
+        setMessage('¡Gracias por suscribirte!');
+      }
+    } catch (err: any) {
+      console.error('Subscription error:', err);
+      setStatus('error');
+      setMessage('Hubo un error. Inténtalo de nuevo.');
+    }
+  };
   const categories = [
     "Información",
     "Nacionales",
@@ -23,7 +57,7 @@ export default function Footer() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24"
         >
           <div className="space-y-8">
-            <h3 className="text-4xl font-serif font-black tracking-tighter uppercase leading-none">REGIÓN <span className="text-brand">24H</span></h3>
+            <h3 className="text-4xl font-serif font-black tracking-tighter uppercase leading-none">NOTICIAS <span className="text-brand">24H</span></h3>
             <p className="text-gray-500 text-xs font-serif italic leading-relaxed max-w-xs">
               "La excelencia en el periodismo es nuestra única brújula. Informando con rigor y elegancia a toda la región."
             </p>
@@ -62,7 +96,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <Mail size={16} className="text-brand shrink-0" />
-                <span>ejecutivo@region24h.pe</span>
+                <span>ejecutivo@noticias24h.pe</span>
               </li>
             </ul>
           </div>
@@ -73,21 +107,36 @@ export default function Footer() {
               Reciba nuestro boletín matutino con los hechos que mueven el mundo.
             </p>
             <div className="flex flex-col gap-4">
-              <input
-                type="email"
-                placeholder="Email corporativo"
-                className="w-full px-6 py-4 bg-white/5 text-white border border-white/10 focus:outline-none focus:border-brand tracking-widest text-[10px] font-bold"
-              />
-              <button className="bg-brand text-white px-6 py-4 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-brand-dark transition-all transform active:scale-[0.98] shadow-2xl">
-                Suscribirse
-              </button>
+              <form onSubmit={handleSubscribe} className="flex flex-col gap-4">
+                <input
+                  type="email"
+                  placeholder="Email corporativo"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={status === 'loading' || status === 'success'}
+                  className="w-full px-6 py-4 bg-white/5 text-white border border-white/10 focus:outline-none focus:border-brand tracking-widest text-[10px] font-bold"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading' || status === 'success'}
+                  className={`bg-brand text-white px-6 py-4 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-brand-dark transition-all transform active:scale-[0.98] shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {status === 'loading' ? 'Enviando...' : 'Suscribirse'}
+                </button>
+              </form>
+              {message && (
+                <p className={`text-[10px] font-bold tracking-widest uppercase ${status === 'error' ? 'text-red-400' : 'text-brand'}`}>
+                  {message}
+                </p>
+              )}
             </div>
           </div>
         </motion.div>
 
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-500 text-center md:text-left">
-            © 2025 REGIÓN 24H • PERIODISMO DE ALTURA INDEPENDIENTE
+            © 2025 NOTICIAS 24H • PERIODISMO DE ALTURA INDEPENDIENTE
           </div>
           <div className="flex gap-10 text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">
             <a href="#" className="hover:text-brand transition-colors">Términos Legales</a>

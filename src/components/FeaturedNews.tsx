@@ -33,7 +33,7 @@ export default function FeaturedNews() {
           className="lg:col-span-2"
         >
           <Link to={`/articulo/${mainNews.id}`} className="block">
-            <div className={`relative h-[600px] bg-accent group cursor-pointer border ${isPreviewMode && changedIds.has(mainNews.id) ? 'border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-gray-200'}`}>
+            <div className={`relative h-[400px] md:h-[600px] bg-accent group cursor-pointer border ${isPreviewMode && changedIds.has(mainNews.id) ? 'border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-gray-200'}`}>
               <img
                 src={mainNews.image}
                 alt={mainNews.subtitle || mainNews.title}

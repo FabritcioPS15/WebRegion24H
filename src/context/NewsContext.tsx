@@ -11,6 +11,8 @@ interface NewsContextType {
   displayVideos: Video[];
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
   addNews: (article: Omit<NewsArticle, 'id'>) => Promise<void>;
   updateNews: (id: string, article: Partial<NewsArticle>) => Promise<void>;
   deleteNews: (id: string) => Promise<void>;
@@ -37,6 +39,7 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [changedIds, setChangedIds] = useState<Set<string>>(new Set());
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [activeDraft, setActiveDraft] = useState<NewsArticle | Podcast | Video | null>(null);
@@ -183,23 +186,43 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   // Computed data for Public View / Preview
-  const displayNews = (isPreviewMode && activeDraft && 'content' in activeDraft)
+  const displayNews = ((isPreviewMode && activeDraft && 'content' in activeDraft)
     ? (activeDraft.id
       ? news.map(n => n.id === activeDraft.id ? activeDraft : n)
       : [{ ...activeDraft, id: 'new_draft_id' }, ...news]) as NewsArticle[]
-    : news.filter(n => n.status === 'published' || !n.status); // Default to visible if status is missing
+    : news.filter(n => n.status === 'published' || !n.status))
+    .filter(n => {
+      const matchesCategory = selectedCategory === 'Todas' || selectedCategory === 'Más' || n.category === selectedCategory;
+      const matchesSearch = !searchQuery ||
+        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (n.subtitle && n.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        n.content.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
 
-  const displayPodcasts = (isPreviewMode && activeDraft && 'description' in activeDraft && !('content' in activeDraft))
+  const displayPodcasts = ((isPreviewMode && activeDraft && 'description' in activeDraft && !('content' in activeDraft))
     ? (activeDraft.id
       ? podcasts.map(p => p.id === activeDraft.id ? activeDraft : p)
       : [{ ...activeDraft, id: 'new_draft_id' }, ...podcasts]) as Podcast[]
-    : podcasts.filter(p => p.status === 'published' || !p.status);
+    : podcasts.filter(p => p.status === 'published' || !p.status))
+    .filter(p => {
+      const matchesSearch = !searchQuery ||
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
 
-  const displayVideos = (isPreviewMode && activeDraft && 'thumbnail' in activeDraft)
+  const displayVideos = ((isPreviewMode && activeDraft && 'thumbnail' in activeDraft)
     ? (activeDraft.id
       ? videos.map(v => v.id === activeDraft.id ? activeDraft : v)
       : [{ ...activeDraft, id: 'new_draft_id' }, ...videos]) as Video[]
-    : videos.filter(v => v.status === 'published' || !v.status);
+    : videos.filter(v => v.status === 'published' || !v.status))
+    .filter(v => {
+      const matchesSearch = !searchQuery ||
+        v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
 
   const effectiveChangedIds = new Set(changedIds);
   if (activeDraft) {
@@ -216,6 +239,8 @@ export function NewsProvider({ children }: { children: ReactNode }) {
       displayVideos,
       selectedCategory,
       setSelectedCategory,
+      searchQuery,
+      setSearchQuery,
       addNews,
       updateNews,
       deleteNews,

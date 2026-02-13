@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNews } from '../context/NewsContext';
 import { NewsArticle, Podcast, Video } from '../types/news';
-import { LayoutDashboard, Radio, PlayCircle, Plus, Edit2, Trash2, LinkIcon, Save, X, Loader2, Monitor, FileText, Eye, EyeOff, ArrowLeft, Upload, Clock } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { LayoutDashboard, Radio, PlayCircle, Plus, Edit2, Trash2, LinkIcon, Save, X, Loader2, Monitor, FileText, Eye, EyeOff, ArrowLeft, Upload, Clock, Users } from 'lucide-react';
 import Header from './Header';
 import FeaturedNews from './FeaturedNews';
 import NewsGrid from './NewsGrid';
@@ -720,8 +721,40 @@ const VideoForm = ({ video, onSave, onCancel, setActiveDraft }: {
 
 export default function AdminPanel({ onBack }: AdminPanelProps) {
   const { news, podcasts, videos, addNews, updateNews, deleteNews, addPodcast, updatePodcast, deletePodcast, addVideo, updateVideo, deleteVideo, setIsPreviewMode, clearChanges, changedIds, setActiveDraft, isLoading, activeDraft } = useNews();
-  const [activeTab, setActiveTab] = useState<'news' | 'podcasts' | 'videos'>('news');
+  const [activeTab, setActiveTab] = useState<'news' | 'podcasts' | 'videos' | 'subscribers'>('news');
   const [editingItem, setEditingItem] = useState<NewsArticle | Podcast | Video | null>(null);
+  const [subscribers, setSubscribers] = useState<{ id: string, email: string, created_at: string }[]>([]);
+  const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'subscribers') {
+      fetchSubscribers();
+    }
+  }, [activeTab]);
+
+  const fetchSubscribers = async () => {
+    setIsLoadingSubscribers(true);
+    try {
+      const { data, error } = await supabase.from('subscriptions').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setSubscribers(data || []);
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+    } finally {
+      setIsLoadingSubscribers(false);
+    }
+  };
+
+  const deleteSubscriber = async (id: string) => {
+    if (!confirm('¿Eliminar suscriptor?')) return;
+    try {
+      const { error } = await supabase.from('subscriptions').delete().eq('id', id);
+      if (error) throw error;
+      setSubscribers(subscribers.filter(s => s.id !== id));
+    } catch (error) {
+      console.error('Error deleting subscriber:', error);
+    }
+  };
   const [showPreview, setShowPreview] = useState(false);
   const [previewType, setPreviewType] = useState<'home' | 'article'>('home');
 
@@ -877,6 +910,22 @@ export default function AdminPanel({ onBack }: AdminPanelProps) {
                     </div>
                     <span className="text-[10px] font-black opacity-30">{videos.length}</span>
                   </button>
+
+                  <button
+                    onClick={() => { setActiveTab('subscribers'); setEditingItem(null); }}
+                    className={`w-full group relative flex items-center justify-between px-6 py-5 transition-all duration-300 border ${activeTab === 'subscribers' ? 'bg-accent border-accent text-white shadow-xl' : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 transition-colors ${activeTab === 'subscribers' ? 'bg-brand text-white' : 'bg-gray-50 text-gray-400 group-hover:bg-accent group-hover:text-white'}`}>
+                        <Users className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <span className="block text-[10px] font-black uppercase tracking-[0.2em]">Suscriptores</span>
+                        <span className={`text-[8px] font-bold uppercase tracking-widest opacity-40 transition-opacity ${activeTab === 'subscribers' ? 'opacity-60' : ''}`}>Lista de Correo</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black opacity-30">{subscribers.length}</span>
+                  </button>
                 </div>
 
                 {changedIds.size > 0 && (
@@ -899,7 +948,58 @@ export default function AdminPanel({ onBack }: AdminPanelProps) {
             </aside>
 
             <main className="flex-1 min-w-0">
-              {editingItem ? (
+              {activeTab === 'subscribers' ? (
+                <div className="bg-white border border-gray-200 p-8 shadow-sm">
+                  <div className="flex justify-between items-center mb-10 pb-6 border-b-2 border-gray-50">
+                    <div>
+                      <h2 className="text-2xl font-serif font-black text-accent uppercase tracking-tighter">Lista de Suscriptores</h2>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Usuarios interesados en el boletín</p>
+                    </div>
+                    <button onClick={fetchSubscribers} className="text-[10px] font-black uppercase tracking-widest text-brand hover:text-accent transition-colors">Actualizar Lista</button>
+                  </div>
+
+                  {isLoadingSubscribers ? (
+                    <div className="py-20 text-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-brand mx-auto mb-4" />
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Cargando correos...</p>
+                    </div>
+                  ) : subscribers.length === 0 ? (
+                    <div className="py-20 text-center border-2 border-dashed border-gray-100 italic">
+                      <p className="text-[10px] font-medium text-gray-400">No hay suscriptores registrados aún.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            <th className="px-6 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Correo Electrónico</th>
+                            <th className="px-6 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Fecha de Registro</th>
+                            <th className="px-6 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {subscribers.map((sub) => (
+                            <tr key={sub.id} className="group hover:bg-gray-50 transition-colors">
+                              <td className="px-6 py-6 font-bold text-accent">{sub.email}</td>
+                              <td className="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                {new Date(sub.created_at).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-6">
+                                <button
+                                  onClick={() => deleteSubscriber(sub.id)}
+                                  className="p-3 bg-white border border-gray-200 text-gray-300 hover:text-red-500 hover:border-red-500 transition-all shadow-sm"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ) : editingItem ? (
                 <div className="bg-white border-2 border-accent p-10 shadow-2xl">
                   <h2 className="text-3xl font-serif font-black text-accent uppercase tracking-tighter mb-10 pb-6 border-b border-gray-100">
                     {editingItem.id ? 'Editando' : 'Nuevo'} {activeTab === 'news' ? 'Artículo' : activeTab === 'podcasts' ? 'Capítulo' : 'Video'}
