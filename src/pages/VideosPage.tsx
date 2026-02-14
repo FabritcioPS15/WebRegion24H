@@ -1,15 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNews } from '../context/NewsContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { PlayCircle, Clock, Video as VideoIcon, X, ChevronRight, Home } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { PlayCircle, Clock, Video as VideoIcon, X, ChevronRight, Home, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Video } from '../types/news';
 
 export default function VideosPage() {
     const { displayVideos: videos } = useNews();
+    const location = useLocation();
+    const state = location.state as { selectedId?: string };
+
     const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+
+    const getYoutubeId = (url: string) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    useEffect(() => {
+        if (state?.selectedId && videos.length > 0) {
+            const video = videos.find(v => v.id === state.selectedId);
+            if (video) {
+                setSelectedVideo(video);
+            }
+        }
+    }, [state?.selectedId, videos]);
+
     const featuredVideo = videos[0];
     const remainingVideos = videos.slice(1);
 
@@ -17,7 +36,7 @@ export default function VideosPage() {
         <div className="min-h-screen bg-black">
             <Header />
 
-            <main className="pt-0">
+            <main className="pt-0 min-h-[50vh]">
                 {/* Breadcrumbs */}
                 <div className="bg-zinc-900 border-b border-white/10 py-3">
                     <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
@@ -26,7 +45,13 @@ export default function VideosPage() {
                             Inicio
                         </Link>
                         <ChevronRight className="h-3 w-3 text-gray-700" />
-                        <span className="text-brand">Videos</span>
+                        <span className="text-gray-500">Videos</span>
+                        {selectedVideo && (
+                            <>
+                                <ChevronRight className="h-3 w-3 text-gray-700" />
+                                <span className="text-brand truncate max-w-[200px] sm:max-w-none">{selectedVideo.title}</span>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -127,43 +152,28 @@ export default function VideosPage() {
                         <div className="relative w-full max-w-6xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl border border-white/10" onClick={e => e.stopPropagation()}>
                             <button
                                 onClick={() => setSelectedVideo(null)}
-                                className="absolute top-4 right-4 z-10 text-white/50 hover:text-white transition-colors bg-black/50 p-2 rounded-full backdrop-blur-md"
+                                className="absolute top-4 right-4 z-50 text-white/50 hover:text-white transition-colors bg-black/50 p-2 rounded-full backdrop-blur-md"
                             >
                                 <X className="h-6 w-6" />
                             </button>
 
-                            {/* Simulated Player */}
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900 group">
-                                <img
-                                    src={selectedVideo.thumbnail}
-                                    className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm"
-                                    alt=""
-                                />
-
-                                <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="relative z-10 text-center space-y-6"
-                                >
-                                    <PlayCircle className="h-24 w-24 text-brand mx-auto fill-brand/20 animate-pulse" />
-                                    <div className="text-white space-y-2">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Reproduciendo</p>
-                                        <h2 className="text-2xl md:text-4xl font-serif font-black">{selectedVideo.title}</h2>
+                            {/* YouTube Player or Simulated Player */}
+                            <div className="w-full h-full bg-zinc-900 overflow-hidden">
+                                {selectedVideo.url && getYoutubeId(selectedVideo.url) ? (
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${getYoutubeId(selectedVideo.url)}?autoplay=1`}
+                                        className="w-full h-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
+                                ) : selectedVideo.url ? (
+                                    <CustomVideoPlayer src={selectedVideo.url} />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900">
+                                        <VideoIcon className="h-16 w-16 text-white/10 mb-4" />
+                                        <p className="text-white/50 font-serif italic">Video no disponible</p>
                                     </div>
-                                </motion.div>
-
-                                {/* Simulated Controls */}
-                                <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
-                                    <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden">
-                                        <div className="w-1/3 h-full bg-brand relative">
-                                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform" />
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between text-xs font-black text-gray-400 uppercase tracking-widest">
-                                        <span>04:20</span>
-                                        <span>{selectedVideo.duration}</span>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>
@@ -171,6 +181,219 @@ export default function VideosPage() {
             </AnimatePresence>
 
             <Footer />
+        </div>
+    );
+}
+
+function CustomVideoPlayer({ src }: { src: string }) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [volume, setVolume] = useState(1);
+    const [isMuted, setIsMuted] = useState(false);
+    const [showControls, setShowControls] = useState(true);
+    const controlsTimeoutRef = useRef<number | null>(null);
+
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+
+    const formatTime = (time: number) => {
+        if (isNaN(time)) return '00:00';
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const togglePlay = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        if (videoRef.current) {
+            if (videoRef.current.paused) {
+                videoRef.current.play();
+            } else {
+                videoRef.current.pause();
+            }
+        }
+    };
+
+    const handleTimeUpdate = () => {
+        if (videoRef.current) {
+            const currentProgress = (videoRef.current.currentTime / (videoRef.current.duration || 1)) * 100;
+            setProgress(currentProgress);
+            setCurrentTime(videoRef.current.currentTime);
+        }
+    };
+
+    const handleLoadedMetadata = () => {
+        if (videoRef.current) {
+            setDuration(videoRef.current.duration);
+        }
+    };
+
+    const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+        const newProgress = parseFloat(e.target.value);
+        if (videoRef.current) {
+            videoRef.current.currentTime = (newProgress / 100) * (videoRef.current.duration || 0);
+            setProgress(newProgress);
+        }
+    };
+
+    const toggleMute = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (videoRef.current) {
+            const newMuted = !videoRef.current.muted;
+            videoRef.current.muted = newMuted;
+            setIsMuted(newMuted);
+        }
+    };
+
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+        const newVolume = parseFloat(e.target.value);
+        if (videoRef.current) {
+            videoRef.current.volume = newVolume;
+            setVolume(newVolume);
+            const isNowMuted = newVolume === 0;
+            videoRef.current.muted = isNowMuted;
+            setIsMuted(isNowMuted);
+        }
+    };
+
+    const toggleFullscreen = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (videoRef.current) {
+            const container = videoRef.current.parentElement;
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (container) {
+                container.requestFullscreen();
+            }
+        }
+    };
+
+    const handleMouseMove = () => {
+        setShowControls(true);
+        if (controlsTimeoutRef.current) {
+            window.clearTimeout(controlsTimeoutRef.current);
+        }
+        controlsTimeoutRef.current = window.setTimeout(() => {
+            if (isPlaying && videoRef.current && !videoRef.current.paused) {
+                setShowControls(false);
+            }
+        }, 3000);
+    };
+
+    return (
+        <div
+            className="relative w-full h-full group bg-black overflow-hidden"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => isPlaying && setShowControls(false)}
+        >
+            <video
+                ref={videoRef}
+                src={src}
+                className="w-full h-full cursor-pointer"
+                onClick={togglePlay}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => { setIsPlaying(false); setShowControls(true); }}
+                playsInline
+            />
+
+            {/* Overlay Controls */}
+            <AnimatePresence>
+                {(showControls || !isPlaying) && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/20 flex flex-col justify-end p-6 z-20 cursor-pointer"
+                        onClick={togglePlay}
+                    >
+                        {/* Center Play Button Overlay */}
+                        {!isPlaying && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={togglePlay}
+                                    className="bg-brand text-white p-6 rounded-full shadow-2xl backdrop-blur-sm z-30"
+                                >
+                                    <Play className="h-8 w-8 fill-white ml-1" />
+                                </motion.button>
+                            </div>
+                        )}
+
+                        {/* Bottom Controls Bar */}
+                        <div className="space-y-4" onClick={e => e.stopPropagation()}>
+                            {/* Progress Bar Container */}
+                            <div className="relative w-full h-1.5 group/progress cursor-pointer">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    value={progress}
+                                    onChange={handleProgressChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 z-30 cursor-pointer"
+                                />
+                                <div className="absolute inset-0 bg-white/20 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-brand"
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
+                                <div className="absolute top-1/2 -translate-y-1/2 h-3 w-3 bg-white rounded-full scale-0 group-hover/progress:scale-100 transition-transform shadow-xl z-20"
+                                    style={{ left: `calc(${progress}% - 6px)` }}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-6">
+                                    <button
+                                        onClick={togglePlay}
+                                        className="text-white hover:text-brand transition-all transform active:scale-95"
+                                    >
+                                        {isPlaying ? <Pause className="h-5 w-5 fill-white" /> : <Play className="h-5 w-5 fill-white" />}
+                                    </button>
+
+                                    <div className="flex items-center gap-2 group/volume">
+                                        <button
+                                            onClick={toggleMute}
+                                            className="text-white hover:text-brand transition-all"
+                                        >
+                                            {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                                        </button>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.05"
+                                            value={isMuted ? 0 : volume}
+                                            onChange={handleVolumeChange}
+                                            className="w-0 group-hover/volume:w-20 transition-all duration-300 accent-brand overflow-hidden cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-6">
+                                    <span className="text-white/80 text-[10px] font-mono tracking-widest tabular-nums bg-black/40 px-2 py-1 rounded">
+                                        {formatTime(currentTime)} / {formatTime(duration)}
+                                    </span>
+                                    <button
+                                        onClick={toggleFullscreen}
+                                        className="text-white hover:text-brand transition-all transform hover:scale-110"
+                                    >
+                                        <Maximize className="h-5 w-5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

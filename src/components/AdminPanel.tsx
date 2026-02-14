@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNews } from '../context/NewsContext';
 import { NewsArticle, Podcast, Video } from '../types/news';
 import { supabase } from '../lib/supabase';
-import { LayoutDashboard, Radio, PlayCircle, Plus, Edit2, Trash2, LinkIcon, Save, X, Loader2, Monitor, FileText, Eye, EyeOff, ArrowLeft, Upload, Clock, Users } from 'lucide-react';
+import { X, Edit2, Trash2, Plus, FileText, Video as VideoIcon, Radio, Clock, Eye, EyeOff, Upload, Loader2, Save, LayoutDashboard, PlayCircle, ArrowLeft, Monitor, Users, Link as LinkIcon } from 'lucide-react';
 import Header from './Header';
 import FeaturedNews from './FeaturedNews';
 import NewsGrid from './NewsGrid';
@@ -337,7 +337,7 @@ const NewsForm = ({ article, onSave, onCancel, setActiveDraft }: {
               key={s.id}
               type="button"
               onClick={() => setFormData({ ...formData, status: s.id as any })}
-              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'}`}
+              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition - all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'} `}
             >
               <s.icon className="h-3 w-3 mr-2" />
               {s.label}
@@ -531,7 +531,7 @@ const PodcastForm = ({ podcast, onSave, onCancel, setActiveDraft }: {
               key={s.id}
               type="button"
               onClick={() => setFormData({ ...formData, status: s.id as any })}
-              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'}`}
+              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition - all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'} `}
             >
               <s.icon className="h-3 w-3 mr-2" />
               {s.label}
@@ -558,10 +558,12 @@ const VideoForm = ({ video, onSave, onCancel, setActiveDraft }: {
 }) => {
   const { uploadFile } = useNews();
   const [isUploading, setIsUploading] = useState(false);
+  const [isVideoUploading, setIsVideoUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: video?.title || '',
     description: video?.description || '',
     thumbnail: video?.thumbnail || '',
+    url: video?.url || '',
     duration: video?.duration || '',
     category: video?.category || '',
     status: video?.status || 'published'
@@ -589,6 +591,27 @@ const VideoForm = ({ video, onSave, onCancel, setActiveDraft }: {
       alert(`Error al subir la miniatura: ${error.message || 'Error desconocido'}. Verifique que el bucket "media" sea público y tenga las políticas configuradas.`);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 100 * 1024 * 1024) {
+      alert('El video es demasiado grande. Máximo 100MB.');
+      return;
+    }
+
+    setIsVideoUploading(true);
+    try {
+      const url = await uploadFile(file, 'videos');
+      setFormData(prev => ({ ...prev, url: url }));
+    } catch (error: any) {
+      console.error('Video upload failed:', error);
+      alert(`Error al subir el video: ${error.message || 'Error desconocido'}`);
+    } finally {
+      setIsVideoUploading(false);
     }
   };
 
@@ -632,6 +655,33 @@ const VideoForm = ({ video, onSave, onCancel, setActiveDraft }: {
           className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-serif text-accent"
           required
         />
+      </div>
+
+      <div className="space-y-4">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Fuente del Video</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[9px] font-bold uppercase text-gray-400">Enlace Externo (YouTube/Drive)</label>
+            <input
+              type="url"
+              value={formData.url}
+              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-mono text-[10px]"
+              placeholder="https://..."
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[9px] font-bold uppercase text-gray-400">Subir Archivo de Video</label>
+            <div className="relative group h-[58px]">
+              <label className={`flex items-center justify-center gap-3 h-full w-full border-2 border-dashed transition-all cursor-pointer rounded-lg text-[10px] font-black uppercase tracking-widest ${isVideoUploading ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-gray-200 hover:border-brand hover:bg-white text-accent'}`}>
+                {isVideoUploading ? <Loader2 className="h-4 w-4 animate-spin text-brand" /> : <VideoIcon className="h-4 w-4" />}
+                {isVideoUploading ? 'Subiendo...' : 'Seleccionar Video'}
+                <input type="file" className="hidden" accept="video/*" onChange={handleVideoUpload} disabled={isVideoUploading} />
+              </label>
+            </div>
+          </div>
+        </div>
+        <p className="text-[9px] text-gray-400 italic">Puedes pegar un link o subir un archivo directamente. Se recomienda usar links de YouTube para mejor rendimiento.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-6 border-y border-gray-50">
@@ -712,7 +762,7 @@ const VideoForm = ({ video, onSave, onCancel, setActiveDraft }: {
               key={s.id}
               type="button"
               onClick={() => setFormData({ ...formData, status: s.id as any })}
-              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'}`}
+              className={`flex items-center px-4 py-2 text-[9px] font-black uppercase tracking-widest transition - all border ${formData.status === s.id ? `bg-accent text-white border-accent` : 'bg-white border-gray-100 text-gray-400 hover:border-accent hover:text-accent'} `}
             >
               <s.icon className="h-3 w-3 mr-2" />
               {s.label}
@@ -737,6 +787,10 @@ export default function AdminPanel({ onBack }: AdminPanelProps) {
   const [editingItem, setEditingItem] = useState<NewsArticle | Podcast | Video | null>(null);
   const [subscribers, setSubscribers] = useState<{ id: string, email: string, created_at: string }[]>([]);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'subscribers') {
@@ -791,7 +845,7 @@ export default function AdminPanel({ onBack }: AdminPanelProps) {
 
   return (
     <div className={`min-h-screen ${showPreview ? 'bg-white' : 'bg-[#fcfcfc]'}`}>
-      <div className={`${showPreview ? '' : 'max-w-[1400px] mx-auto px-6 py-12'}`}>
+      <div className={`${showPreview ? '' : 'max-w-[1400px] mx-auto px-6 py-12'} `}>
         {!showPreview && (
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8 border-b-4 border-accent pb-10">
             <div>
@@ -1084,7 +1138,7 @@ export default function AdminPanel({ onBack }: AdminPanelProps) {
                                 </div>
                               </td>
                               <td className="px-6 py-6">
-                                <div className="flex flex-col gap-2">
+                                <div className="grid grid-cols-2 gap-6">
                                   <span className="inline-block w-fit px-3 py-1 bg-gray-100 text-[9px] font-black uppercase tracking-widest text-accent">
                                     {'category' in item ? item.category : 'duration' in item ? item.duration : 'Multimedia'}
                                   </span>

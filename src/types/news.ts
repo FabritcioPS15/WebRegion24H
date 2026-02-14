@@ -31,6 +31,7 @@ export interface Video {
   title: string;
   description: string;
   thumbnail: string;
+  url?: string;
   duration: string;
   category: string;
   status?: 'published' | 'hidden' | 'draft' | 'pending';
