@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNews } from '../context/NewsContext';
+import OptimizedImage from './OptimizedImage';
 
 export default function HighlightSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
@@ -55,10 +56,11 @@ export default function HighlightSection() {
             viewport={{ once: true }}
             className={`relative h-full min-h-[600px] bg-accent border-[12px] shadow-2xl transition-all ${isPreviewMode && changedIds.has(spotlight.id) ? 'border-red-500 scale-[1.02] shadow-[0_0_50px_rgba(239,68,68,0.4)]' : 'border-white'}`}
           >
-            <img
+            <OptimizedImage
               src={spotlight.image}
               alt={spotlight.title}
               className="w-full h-full object-cover opacity-80 grayscale-[30%] group-hover:grayscale-0 transition duration-1000"
+              width={1000}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-accent to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-12 text-white">

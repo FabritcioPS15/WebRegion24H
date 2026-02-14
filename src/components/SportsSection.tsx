@@ -1,6 +1,7 @@
 import { Calendar, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNews } from '../context/NewsContext';
+import OptimizedImage from './OptimizedImage';
 
 export default function SportsSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
@@ -29,10 +30,11 @@ export default function SportsSection() {
             className={`group cursor-pointer border-b pb-8 transition-all ${isPreviewMode && changedIds.has(item.id) ? 'border-2 border-red-500 bg-red-50/10 p-4' : 'border-gray-50'}`}
           >
             <div className="relative h-64 overflow-hidden mb-6 bg-accent border border-gray-100">
-              <img
+              <OptimizedImage
                 src={item.image}
                 alt={item.title}
                 className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-1000 grayscale-[40%] group-hover:grayscale-0"
+                width={600}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-accent/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="absolute top-0 right-0">

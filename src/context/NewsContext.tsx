@@ -210,6 +210,11 @@ export function NewsProvider({ children }: { children: ReactNode }) {
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
+    })
+    .sort((a, b) => {
+      if (a.live && !b.live) return -1;
+      if (!a.live && b.live) return 1;
+      return 0; // Maintain original fetch order (created_at DESC) for same live status
     });
 
   const displayVideos = ((isPreviewMode && activeDraft && 'thumbnail' in activeDraft)

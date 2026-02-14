@@ -375,6 +375,7 @@ const PodcastForm = ({ podcast, onSave, onCancel, setActiveDraft }: {
     description: podcast?.description || '',
     duration: podcast?.duration || '',
     image: podcast?.image || '',
+    link: podcast?.link || '',
     live: podcast?.live || false,
     status: podcast?.status || 'published'
   });
@@ -494,6 +495,17 @@ const PodcastForm = ({ podcast, onSave, onCancel, setActiveDraft }: {
               placeholder="45 min"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link de Reproducción (URL)</label>
+            <input
+              type="url"
+              value={formData.link}
+              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+              className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-mono text-[10px]"
+              placeholder="https://spotify.com/... o https://youtube.com/..."
+            />
+            <p className="text-[9px] text-gray-400 italic">Los enlaces de YouTube se reproducirán automáticamente en el sitio.</p>
           </div>
           <label className="flex items-center cursor-pointer group p-4 bg-gray-50 border border-gray-100 italic rounded">
             <input

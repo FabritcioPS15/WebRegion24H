@@ -1,6 +1,7 @@
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import OptimizedImage from './OptimizedImage';
 
 export default function NewsGrid() {
   const { displayNews: news, selectedCategory, changedIds, isPreviewMode } = useNews();
@@ -29,10 +30,11 @@ export default function NewsGrid() {
               className={`bg-white transition-all ${isPreviewMode && changedIds.has(article.id) ? 'border-4 border-red-500 p-2 bg-red-50/10' : ''}`}
             >
               <div className="relative h-56 overflow-hidden mb-6 bg-accent border border-gray-100">
-                <img
+                <OptimizedImage
                   src={article.image}
                   alt={article.title}
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-700 grayscale-[20%] group-hover:grayscale-0"
+                  width={400}
                 />
                 <span className="absolute top-0 right-0 bg-brand text-white px-3 py-1.5 text-[9px] font-black uppercase tracking-widest shadow-xl">
                   {article.category}

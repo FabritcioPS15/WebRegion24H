@@ -2,6 +2,7 @@ import { Play, Film } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import OptimizedImage from './OptimizedImage';
 
 export default function VideosSection() {
   const { displayVideos: videos, changedIds, isPreviewMode } = useNews();
@@ -33,10 +34,11 @@ export default function VideosSection() {
               className={`bg-white group cursor-pointer border-b pb-8 hover:border-brand transition-all duration-300 ${isPreviewMode && changedIds.has(video.id) ? 'border-2 border-red-500 bg-red-50/10 p-4' : 'border-gray-50'}`}
             >
               <div className="relative h-64 overflow-hidden bg-accent border border-gray-100 mb-8">
-                <img
+                <OptimizedImage
                   src={video.thumbnail}
                   alt={video.title}
                   className="w-full h-full object-cover opacity-80 group-hover:opacity-40 transition duration-1000 grayscale-[50%] group-hover:grayscale-0"
+                  width={600}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-brand text-white p-6 shadow-2xl group-hover:scale-110 transition duration-500">

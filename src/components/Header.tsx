@@ -114,7 +114,10 @@ export default function Header() {
                 {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Más'].map((item) => (
                   <li key={item} className="group list-none">
                     <button
-                      onClick={() => setSelectedCategory(item)}
+                      onClick={() => {
+                        setSelectedCategory(item);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
                       className={`block py-3 md:py-4 px-4 md:px-6 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all relative font-sans ${selectedCategory === item ? 'text-brand' : 'text-accent/80 hover:text-brand'}`}
                     >
                       {item}
@@ -166,6 +169,7 @@ export default function Header() {
                     onClick={() => {
                       setSelectedCategory(item);
                       setMobileMenuOpen(false);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className={`w-full text-left block py-4 px-6 text-xs font-bold uppercase tracking-widest border-b border-gray-50 hover:bg-gray-50 ${selectedCategory === item ? 'text-brand bg-gray-50' : 'text-accent'}`}
                   >

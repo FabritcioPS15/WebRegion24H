@@ -21,6 +21,7 @@ export interface Podcast {
   description: string;
   duration: string;
   image: string;
+  link?: string;
   live?: boolean;
   status?: 'published' | 'hidden' | 'draft' | 'pending';
 }

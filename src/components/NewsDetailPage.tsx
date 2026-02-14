@@ -6,6 +6,7 @@ import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
 import SubscriptionForm from './SubscriptionForm';
+import OptimizedImage from './OptimizedImage';
 
 interface NewsDetailPageProps {
     previewArticle?: NewsArticle;
@@ -128,10 +129,12 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                         </header>
 
                         <div className="relative aspect-video mb-16 overflow-hidden bg-accent">
-                            <img
+                            <OptimizedImage
                                 src={article.image}
                                 alt={article.title}
                                 className="w-full h-full object-cover opacity-90 grayscale-[5%]"
+                                priority={true}
+                                width={1200}
                             />
                         </div>
 
@@ -205,7 +208,7 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                                         <Link key={rel.id} to={`/articulo/${rel.id}`} className="group block">
                                             <div className="flex gap-6">
                                                 <div className="w-24 h-24 shrink-0 overflow-hidden bg-accent border border-gray-100">
-                                                    <img src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" />
+                                                    <OptimizedImage src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" width={200} />
                                                 </div>
                                                 <div>
                                                     <span className="text-brand text-[8px] font-black uppercase tracking-widest mb-1 block">{rel.category}</span>

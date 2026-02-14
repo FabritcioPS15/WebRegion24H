@@ -2,6 +2,7 @@ import { Clock } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import OptimizedImage from './OptimizedImage';
 
 export default function FeaturedNews() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
@@ -34,10 +35,12 @@ export default function FeaturedNews() {
         >
           <Link to={`/articulo/${mainNews.id}`} className="block">
             <div className={`relative h-[400px] md:h-[600px] bg-accent group cursor-pointer border ${isPreviewMode && changedIds.has(mainNews.id) ? 'border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-gray-200'}`}>
-              <img
+              <OptimizedImage
                 src={mainNews.image}
                 alt={mainNews.subtitle || mainNews.title}
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-700 grayscale-[20%] group-hover:grayscale-0"
+                priority={true}
+                width={1200}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-accent to-transparent"></div>
               <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
@@ -81,10 +84,11 @@ export default function FeaturedNews() {
                     </p>
                   </div>
                   <div className="w-24 h-24 shrink-0 bg-gray-100 overflow-hidden border border-gray-200">
-                    <img
+                    <OptimizedImage
                       src={news.image}
                       alt={news.title}
                       className="w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition duration-500"
+                      width={400}
                     />
                   </div>
                 </div>

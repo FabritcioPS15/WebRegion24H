@@ -17,9 +17,9 @@ export default function VideosPage() {
         <div className="min-h-screen bg-black">
             <Header />
 
-            <main className="pt-20">
+            <main className="pt-0">
                 {/* Breadcrumbs */}
-                <div className="bg-zinc-900 border-b border-white/10 py-3 mt-12">
+                <div className="bg-zinc-900 border-b border-white/10 py-3">
                     <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
                         <Link to="/" className="hover:text-white transition-colors flex items-center gap-1">
                             <Home className="h-3 w-3" />
