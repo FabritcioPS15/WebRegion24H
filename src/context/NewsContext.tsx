@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { NewsArticle, Podcast, Video } from '../types/news';
 import { supabase } from '../lib/supabase';
+import imageCompression from 'browser-image-compression';
 
 interface NewsContextType {
   news: NewsArticle[];
@@ -103,13 +104,33 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const uploadFile = async (file: File, folder: 'news' | 'podcasts' | 'videos') => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+    let fileToUpload = file;
+    
+    // Comprimir imágenes antes de subir
+    const isImage = file.type.startsWith('image/');
+    if (isImage && file.size > 500 * 1024) { // Solo si es mayor a 500KB
+      try {
+        const options = {
+          maxSizeMB: 0.5,         // Máximo 500KB
+          maxWidthOrHeight: 1920, // Máximo 1920px de ancho/alto
+          useWebWorker: true,
+          fileType: 'image/webp', // Convertir a WebP (mejor compresión)
+        };
+        fileToUpload = await imageCompression(file, options);
+        console.log(`Imagen comprimida: ${(file.size / 1024).toFixed(1)}KB → ${(fileToUpload.size / 1024).toFixed(1)}KB`);
+      } catch (compressionError) {
+        console.warn('Error al comprimir imagen, subiendo original:', compressionError);
+        fileToUpload = file;
+      }
+    }
+
+    const fileExt = fileToUpload.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2)}.${isImage ? 'webp' : fileExt}`;
     const filePath = `${folder}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('media')
-      .upload(filePath, file);
+      .upload(filePath, fileToUpload);
 
     if (uploadError) {
       throw uploadError;

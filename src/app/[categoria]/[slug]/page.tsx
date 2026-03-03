@@ -15,13 +15,20 @@ import {
 import { slugify } from '../../../lib/slug';
 
 export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
-  const articles = await getAllPublishedArticles();
-  return articles.map((a) => ({
-    categoria: slugify(a.categoria || 'noticias') || 'noticias',
-    slug: a.slug || slugify(a.titulo) || a.id,
-  }));
+  try {
+    const articles = await getAllPublishedArticles();
+    return articles.map((a) => ({
+      categoria: slugify(a.categoria || 'noticias') || 'noticias',
+      slug: a.slug || slugify(a.titulo) || a.id,
+    }));
+  } catch (error) {
+    console.error('Error en generateStaticParams:', error);
+    // Fallback vacío para evitar que falle el build
+    return [];
+  }
 }
 
 export async function generateMetadata({

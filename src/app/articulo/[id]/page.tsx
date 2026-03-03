@@ -6,6 +6,35 @@ import { createSupabaseServerClient } from '../../../lib/supabase/server';
 
 type Params = { id: string };
 
+// Generar páginas estáticas para todos los artículos
+export async function generateStaticParams() {
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data: articles } = await supabase
+      .from('news')
+      .select('id, slug')
+      .or('status.is.null,status.eq.published');
+
+    const params = (articles || [])
+      .filter((article) => article && article.id)
+      .map((article) => ({
+        id: article.slug || article.id,
+      }));
+
+    // Si no hay artículos, generar al menos una página para evitar error de export
+    if (params.length === 0) {
+      return [{ id: 'placeholder' }];
+    }
+
+    return params;
+  } catch (error) {
+    console.error('Error en generateStaticParams:', error);
+    // Fallback para evitar que falle el build
+    return [{ id: 'placeholder' }];
+  }
+}
+
+
 async function getArticleBySlugOrId(slugOrId: string) {
   const supabase = createSupabaseServerClient();
 

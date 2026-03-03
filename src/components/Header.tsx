@@ -1,7 +1,8 @@
 'use client';
 
 import { Search, Menu, Youtube, Facebook, Twitter, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import AppLink from './AppLink';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
@@ -10,7 +11,8 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { selectedCategory, setSelectedCategory, searchQuery, setSearchQuery } = useNews();
+  const [showResults, setShowResults] = useState(false);
+  const { selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, news } = useNews();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +27,19 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Filtrar noticias en tiempo real
+  const searchResults = useMemo(() => {
+    if (!searchQuery || searchQuery.length < 2) return [];
+    const query = searchQuery.toLowerCase();
+    return news
+      .filter(article => 
+        article.title?.toLowerCase().includes(query) ||
+        article.subtitle?.toLowerCase().includes(query) ||
+        article.category?.toLowerCase().includes(query)
+      )
+      .slice(0, 8);
+  }, [searchQuery, news]);
+
   const currentDate = new Date().toLocaleDateString('es-ES', {
     weekday: 'long',
     year: 'numeric',
@@ -34,6 +49,17 @@ export default function Header() {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setShowResults(e.target.value.length >= 2);
+  };
+
+  const handleResultClick = () => {
+    setShowResults(false);
+    setSearchQuery('');
+    setIsSearchOpen(false);
   };
 
   return (
@@ -89,18 +115,41 @@ export default function Header() {
 
               <div className="lg:hidden flex-1 px-4">
                 {isSearchOpen ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Buscar..."
-                      className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-[10px] font-bold uppercase tracking-widest focus:outline-none"
-                      autoFocus
-                    />
-                    <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}>
-                      <X className="h-4 w-4 text-gray-400" />
-                    </button>
+                  <div className="relative">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Buscar..."
+                        className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-[10px] font-bold uppercase tracking-widest focus:outline-none"
+                        autoFocus
+                      />
+                      <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setShowResults(false); }}>
+                        <X className="h-4 w-4 text-gray-400" />
+                      </button>
+                    </div>
+                    {/* Mobile Search Results Dropdown */}
+                    {showResults && searchResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl max-h-60 overflow-y-auto z-50">
+                        {searchResults.map((article) => (
+                          <Link
+                            key={article.id}
+                            href={`/articulo/${article.id}`}
+                            onClick={handleResultClick}
+                            className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                          >
+                            {article.image && (
+                              <img src={article.image} alt="" className="w-12 h-12 object-cover flex-shrink-0" />
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-accent truncate">{article.title}</p>
+                              <p className="text-[10px] text-gray-500">{article.category}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <button
@@ -128,23 +177,49 @@ export default function Header() {
                   </li>
                 ))}
                 <li className="flex items-center px-4 relative">
-                  <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
+                  <div className={`flex items-center transition-all duration-300 ${isSearchOpen ? 'w-80 opacity-100' : 'w-0 opacity-0 overflow-hidden'}`}>
                     <div className="relative w-full">
                       <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={handleSearchChange}
                         placeholder="Buscar..."
                         className="w-full bg-gray-50 border border-gray-200 pl-3 pr-8 py-1.5 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-brand"
                         autoFocus={isSearchOpen}
                       />
                       {searchQuery && (
                         <button
-                          onClick={() => setSearchQuery('')}
+                          onClick={() => { setSearchQuery(''); setShowResults(false); }}
                           className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand"
                         >
                           <X className="h-3 w-3" />
                         </button>
+                      )}
+                      {/* Desktop Search Results Dropdown */}
+                      {showResults && searchResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto z-50">
+                          {searchResults.map((article) => (
+                            <Link
+                              key={article.id}
+                              href={`/articulo/${article.id}`}
+                              onClick={handleResultClick}
+                              className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                            >
+                              {article.image && (
+                                <img src={article.image} alt="" className="w-14 h-14 object-cover flex-shrink-0" />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-bold text-accent truncate">{article.title}</p>
+                                <p className="text-[10px] text-gray-500">{article.category}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      {showResults && searchQuery.length >= 2 && searchResults.length === 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl p-3 z-50">
+                          <p className="text-xs text-gray-500 text-center">No se encontraron resultados</p>
+                        </div>
                       )}
                     </div>
                   </div>

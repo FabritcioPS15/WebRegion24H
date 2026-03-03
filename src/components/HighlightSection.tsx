@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
 
@@ -27,27 +28,28 @@ export default function HighlightSection() {
 
             <div className="space-y-10">
               {listArticles.map((article, index) => (
-                <motion.div
-                  key={article.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className={`bg-white border-b pb-8 hover:border-brand transition-all cursor-pointer group ${isPreviewMode && changedIds.has(article.id) ? 'border-2 border-red-500 bg-red-50/10 p-4' : 'border-gray-50'}`}
-                >
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex-1">
-                      <div className="text-[9px] font-black text-brand uppercase tracking-widest mb-3">{article.date}</div>
-                      <h3 className="text-2xl font-serif font-black text-accent mb-4 group-hover:text-brand transition-colors leading-tight">
-                        {article.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 font-serif leading-relaxed line-clamp-2 italic">{article.subtitle || "Resumen de investigación en profundidad..."}</p>
+                <Link href={`/articulo/${article.id}`} key={article.id} className="block">
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className={`bg-white border-b pb-8 hover:border-brand transition-all cursor-pointer group ${isPreviewMode && changedIds.has(article.id) ? 'border-2 border-red-500 bg-red-50/10 p-4' : 'border-gray-50'}`}
+                  >
+                    <div className="flex items-start justify-between gap-6">
+                      <div className="flex-1">
+                        <div className="text-[9px] font-black text-brand uppercase tracking-widest mb-3">{article.date}</div>
+                        <h3 className="text-2xl font-serif font-black text-accent mb-4 group-hover:text-brand transition-colors leading-tight">
+                          {article.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 font-serif leading-relaxed line-clamp-2 italic">{article.subtitle || "Resumen de investigación en profundidad..."}</p>
+                      </div>
+                      <div className="mt-2 text-gray-300 group-hover:text-brand group-hover:translate-x-1 transition-all">
+                        <ArrowRight size={24} />
+                      </div>
                     </div>
-                    <div className="mt-2 text-gray-300 group-hover:text-brand group-hover:translate-x-1 transition-all">
-                      <ArrowRight size={24} />
-                    </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>
@@ -75,9 +77,11 @@ export default function HighlightSection() {
               <p className="text-gray-300 mb-10 text-xl font-serif italic leading-relaxed border-l-2 border-brand pl-8">
                 "{spotlight.subtitle || "Un análisis exhaustivo sobre los desafíos actuales de nuestra sociedad moderna."}"
               </p>
-              <button className="bg-white text-accent px-10 py-5 font-black uppercase tracking-[0.4em] text-[10px] hover:bg-brand hover:text-white transition-all shadow-xl group/btn flex items-center gap-4">
-                Lectura Completa <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
-              </button>
+              <Link href={`/articulo/${spotlight.id}`}>
+                <div className="inline-block bg-white text-accent px-10 py-5 font-black uppercase tracking-[0.4em] text-[10px] hover:bg-brand hover:text-white transition-all shadow-xl group/btn flex items-center gap-4 cursor-pointer">
+                  Lectura Completa <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
+                </div>
+              </Link>
             </div>
           </motion.div>
         </div>
