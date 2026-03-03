@@ -1,3 +1,5 @@
+'use client';
+
 import { Calendar, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNews } from '../context/NewsContext';
@@ -6,7 +8,7 @@ import OptimizedImage from './OptimizedImage';
 export default function SportsSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
-  const sportsNews = news.filter(article => article.category === 'Deportes').slice(0, 3);
+  const sportsNews = news.filter(article => article.category?.toLowerCase() === 'deportes').slice(0, 3);
 
   if (sportsNews.length === 0) {
     return null;

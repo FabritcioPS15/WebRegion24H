@@ -1,6 +1,8 @@
+'use client';
+
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
 
 export default function NewsGrid() {
@@ -8,9 +10,17 @@ export default function NewsGrid() {
 
   const filteredNews = news.filter(article => {
     const isRegular = !article.featured && !article.breaking;
+    // Since 'news' (from displayNews) is already filtered by category in the context,
+    // we only need to filter out featured/breaking articles for the grid.
+    // We add an extra safety check for category just in case.
+    const articleCategory = article.category?.toLowerCase();
+    const currentCategory = selectedCategory?.toLowerCase();
+
     if (selectedCategory === 'Todas' || selectedCategory === 'Más') return isRegular;
-    return isRegular && article.category === selectedCategory;
+    return isRegular && articleCategory === currentCategory;
   }).slice(0, 8);
+
+  const hrefFor = (a: any) => `/articulo/${a.id}`;
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-100">
@@ -21,7 +31,7 @@ export default function NewsGrid() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-x-8 md:gap-y-16">
         {filteredNews.map((article, index) => (
-          <Link to={`/articulo/${article.id}`} key={article.id} className="block group">
+          <Link href={hrefFor(article)} key={article.id} className="block group">
             <motion.article
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}

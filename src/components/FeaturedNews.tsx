@@ -1,7 +1,9 @@
+'use client';
+
 import { Clock } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
 
 export default function FeaturedNews() {
@@ -19,6 +21,8 @@ export default function FeaturedNews() {
 
   const sideNews = news.filter(article => !article.featured && article.breaking).slice(0, 3);
 
+  const hrefFor = (a: any) => `/articulo/${a.id}`;
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
       <div className="flex items-center gap-4 mb-8 border-b-2 border-black pb-4">
@@ -33,7 +37,7 @@ export default function FeaturedNews() {
           viewport={{ once: true }}
           className="lg:col-span-2"
         >
-          <Link to={`/articulo/${mainNews.id}`} className="block">
+          <Link href={hrefFor(mainNews)} className="block">
             <div className={`relative h-[400px] md:h-[600px] bg-accent group cursor-pointer border ${isPreviewMode && changedIds.has(mainNews.id) ? 'border-4 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-gray-200'}`}>
               <OptimizedImage
                 src={mainNews.image}
@@ -69,7 +73,7 @@ export default function FeaturedNews() {
               viewport={{ once: true }}
               className={`bg-white border-b-2 pb-6 group cursor-pointer hover:border-brand transition-all duration-300 ${isPreviewMode && changedIds.has(news.id) ? 'border-2 border-red-500 bg-red-50/10' : 'border-gray-100'}`}
             >
-              <Link to={`/articulo/${news.id}`} className="block">
+              <Link href={hrefFor(news)} className="block">
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <div className="text-[9px] font-black text-brand uppercase tracking-widest mb-2 flex items-center gap-1">

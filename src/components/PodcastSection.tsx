@@ -1,8 +1,10 @@
+'use client';
+
 import { Play, Clock, Radio, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useNews } from '../context/NewsContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
 
 export default function PodcastSection() {
@@ -43,8 +45,7 @@ export default function PodcastSection() {
             className="relative"
           >
             <Link
-              to="/podcasts"
-              state={{ selectedId: currentPodcast.id }}
+              href="/podcasts"
               className={`relative block bg-black group cursor-pointer h-[500px] border-4 shadow-2xl transition-all ${isPreviewMode && changedIds.has(currentPodcast.id) ? 'border-red-500 scale-[1.02] shadow-[0_0_40px_rgba(239,68,68,0.3)]' : 'border-white/5'}`}
             >
               <OptimizedImage
@@ -117,8 +118,7 @@ export default function PodcastSection() {
                 <div>ESTRENO: HOY</div>
               </div>
               <Link
-                to="/podcasts"
-                state={{ selectedId: currentPodcast.id }}
+                href="/podcasts"
                 className="bg-white text-accent px-10 py-5 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-brand hover:text-white transition-all shadow-xl active:scale-95 block text-center"
               >
                 Ver Directorio

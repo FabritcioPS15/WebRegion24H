@@ -1,3 +1,7 @@
+'use client';
+
+// Removed next/image import
+
 interface OptimizedImageProps {
     src: string;
     alt: string;
@@ -29,6 +33,14 @@ export default function OptimizedImage({
                 const baseUrl = url.split('?')[0];
                 return `${baseUrl}?auto=format&fit=crop&w=${width}&q=80`;
             }
+
+            // Supabase Optimization (if enabled on the project)
+            // https://supabase.com/docs/guides/storage/serving/image-transformations
+            if (url.includes('.supabase.co/storage/v1/object/public/')) {
+                // Check if the URL already has parameters
+                const separator = url.includes('?') ? '&' : '?';
+                return `${url}${separator}width=${width}&quality=80`;
+            }
         } catch (e) {
             console.error('Error optimizing image URL:', e);
         }
@@ -38,13 +50,17 @@ export default function OptimizedImage({
 
     const optimizedUrl = getOptimizedUrl(src);
 
+    if (!optimizedUrl) return null;
+
     return (
-        <img
-            src={optimizedUrl}
-            alt={alt}
-            className={className}
-            loading={priority ? 'eager' : 'lazy'}
-            decoding="async"
-        />
+        <span className="relative block w-full h-full overflow-hidden">
+            <img
+                src={optimizedUrl}
+                alt={alt}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${className}`}
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+            />
+        </span>
     );
 }

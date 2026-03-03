@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { useNews } from '../context/NewsContext';
 import { NewsArticle, Podcast, Video } from '../types/news';

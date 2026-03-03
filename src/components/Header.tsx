@@ -1,6 +1,8 @@
+'use client';
+
 import { Search, Menu, Youtube, Facebook, Twitter, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import AppLink from './AppLink';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 
@@ -58,7 +60,7 @@ export default function Header() {
               </div>
             </div>
 
-            <Link to="/" className="text-center group">
+            <AppLink to="/" className="text-center group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <motion.div
                 layout
                 className="flex flex-col items-center"
@@ -69,7 +71,7 @@ export default function Header() {
                 <div className={`h-0.5 bg-brand transition-all duration-300 ${isScrolled ? 'w-full mt-1' : 'w-1/4 mx-auto mt-2 group-hover:w-full'}`} />
                 <p className={`font-serif italic text-gray-400 tracking-widest transition-all duration-200 overflow-hidden ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100 text-xs md:text-sm mt-4'}`}>FUNDADO PARA LA EXCELENCIA INFORMATIVA</p>
               </motion.div>
-            </Link>
+            </AppLink>
           </div>
 
           {/* Navigation */}

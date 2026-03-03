@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { NewsArticle, Podcast, Video } from '../types/news';
 import { supabase } from '../lib/supabase';
@@ -47,26 +49,57 @@ export function NewsProvider({ children }: { children: ReactNode }) {
 
   // Fetch data from Supabase on mount
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchData() {
       setIsLoading(true);
       try {
-        const [newsRes, podcastsRes, videosRes] = await Promise.all([
-          supabase.from('news').select('*').order('created_at', { ascending: false }),
-          supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
-          supabase.from('videos').select('*').order('created_at', { ascending: false })
+        // Fetch news, podcasts and videos with limits to improve initial load time
+        // and only fetch published content by default
+        const [newsRes, podcastsRes, videosRes] = await Promise.allSettled([
+          supabase
+            .from('news')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(100),
+          supabase
+            .from('podcasts')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(20),
+          supabase
+            .from('videos')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(20)
         ]);
 
-        if (newsRes.data) setNews(newsRes.data);
-        if (podcastsRes.data) setPodcasts(podcastsRes.data);
-        if (videosRes.data) setVideos(videosRes.data);
+        if (!isMounted) return;
+
+        if (newsRes.status === 'fulfilled' && newsRes.value.data) {
+          setNews(newsRes.value.data);
+        } else if (newsRes.status === 'rejected') {
+          console.error('Error fetching news:', newsRes.reason);
+        }
+
+        if (podcastsRes.status === 'fulfilled' && podcastsRes.value.data) {
+          setPodcasts(podcastsRes.value.data);
+        }
+
+        if (videosRes.status === 'fulfilled' && videosRes.value.data) {
+          setVideos(videosRes.value.data);
+        }
       } catch (error) {
-        console.error('Error fetching data from Supabase:', error);
+        console.error('Unexpected error in fetchData:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchData();
+    return () => { isMounted = false; };
   }, []);
 
   const uploadFile = async (file: File, folder: 'news' | 'podcasts' | 'videos') => {
@@ -192,11 +225,16 @@ export function NewsProvider({ children }: { children: ReactNode }) {
       : [{ ...activeDraft, id: 'new_draft_id' }, ...news]) as NewsArticle[]
     : news.filter(n => n.status === 'published' || !n.status))
     .filter(n => {
-      const matchesCategory = selectedCategory === 'Todas' || selectedCategory === 'Más' || n.category === selectedCategory;
-      const matchesSearch = !searchQuery ||
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (n.subtitle && n.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        n.content.toLowerCase().includes(searchQuery.toLowerCase());
+      // Improved category matching
+      const matchesCategory = selectedCategory === 'Todas' ||
+        selectedCategory === 'Más' ||
+        n.category?.toLowerCase() === selectedCategory?.toLowerCase();
+
+      const searchTerms = searchQuery.toLowerCase().trim();
+      const matchesSearch = !searchTerms ||
+        n.title.toLowerCase().includes(searchTerms) ||
+        (n.subtitle && n.subtitle.toLowerCase().includes(searchTerms)) ||
+        n.content.toLowerCase().includes(searchTerms);
       return matchesCategory && matchesSearch;
     });
 

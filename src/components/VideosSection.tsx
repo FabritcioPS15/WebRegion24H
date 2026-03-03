@@ -1,7 +1,9 @@
+'use client';
+
 import { Play, Film } from 'lucide-react';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
 
 export default function VideosSection() {
@@ -17,7 +19,7 @@ export default function VideosSection() {
         <div className="flex items-center gap-6 mb-16">
           <h2 className="text-sm font-black text-accent uppercase tracking-[0.5em] border-l-4 border-brand pl-6">Producción Audiovisual</h2>
           <div className="flex-1 h-[1px] bg-gray-100"></div>
-          <Link to="/videos" className="text-xs font-black text-brand uppercase tracking-widest hover:text-accent transition-colors flex items-center gap-2 group">
+          <Link href="/videos" className="text-xs font-black text-brand uppercase tracking-widest hover:text-accent transition-colors flex items-center gap-2 group">
             Ver todos
             <Play className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
           </Link>
@@ -27,8 +29,7 @@ export default function VideosSection() {
           {videos.map((video, index) => (
             <Link
               key={video.id}
-              to="/videos"
-              state={{ selectedId: video.id }}
+              href="/videos"
               className="block group"
             >
               <motion.article

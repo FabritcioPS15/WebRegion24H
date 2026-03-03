@@ -1,5 +1,8 @@
+'use client';
+
 import { Mail, Phone, MapPin, Youtube, Facebook, Instagram, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AppLink from './AppLink';
 import SubscriptionForm from './SubscriptionForm';
 
 export default function Footer() {
@@ -24,7 +27,9 @@ export default function Footer() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24"
         >
           <div className="space-y-8">
-            <h3 className="text-4xl font-serif font-black tracking-tighter uppercase leading-none">NOTICIAS <span className="text-brand">24H</span></h3>
+            <AppLink to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="block group">
+              <h3 className="text-4xl font-serif font-black tracking-tighter uppercase leading-none">NOTICIAS <span className="text-brand">24H</span></h3>
+            </AppLink>
             <p className="text-gray-500 text-xs font-serif italic leading-relaxed max-w-xs">
               "La excelencia en el periodismo es nuestra única brújula. Informando con rigor y elegancia a toda la región."
             </p>
@@ -42,9 +47,15 @@ export default function Footer() {
             <ul className="grid grid-cols-1 gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
               {categories.map((category, index) => (
                 <li key={index}>
-                  <a href="#" className="hover:text-white hover:pl-2 transition-all duration-300">
+                  <AppLink
+                    to="/"
+                    onClick={() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="hover:text-white hover:pl-2 transition-all duration-300 text-left uppercase"
+                  >
                     {category}
-                  </a>
+                  </AppLink>
                 </li>
               ))}
             </ul>

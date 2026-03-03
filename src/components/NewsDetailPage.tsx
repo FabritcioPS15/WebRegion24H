@@ -1,5 +1,8 @@
-import { useParams, Link } from 'react-router-dom';
-import { useEffect } from 'react';
+'use client';
+
+import { useParams } from 'react-router-dom';
+import AppLink from './AppLink';
+import { useEffect, useState } from 'react';
 import { useNews } from '../context/NewsContext';
 import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight } from 'lucide-react';
 import { NewsArticle } from '../types/news';
@@ -7,16 +10,81 @@ import Header from './Header';
 import Footer from './Footer';
 import SubscriptionForm from './SubscriptionForm';
 import OptimizedImage from './OptimizedImage';
+import { getArticlePath } from '../lib/articlePath';
 
 interface NewsDetailPageProps {
     previewArticle?: NewsArticle;
+    articleId?: string;
 }
 
-export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) {
-    const { id } = useParams();
-    const { news } = useNews();
+export default function NewsDetailPage({ previewArticle, articleId: propArticleId }: NewsDetailPageProps) {
+    // Safely get URL param - useParams requires a Router context (Vite only)
+    // In Next.js (no Router context), it will throw an error.
+    let urlArticleId: string | undefined;
+    try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const params = useParams();
+        urlArticleId = params.id;
+    } catch {
+        urlArticleId = undefined;
+    }
 
-    const article = previewArticle || news.find(a => a.id === id);
+    // useNews requires a NewsProvider context (Vite). In Next.js it's not wrapped,
+    // so we catch the error and fall back to empty data (previewArticle handles content).
+    let news: NewsArticle[] = [];
+    try {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const ctx = useNews();
+        news = ctx.news;
+    } catch {
+        // Outside NewsProvider context (Next.js) - previewArticle handles content
+    }
+
+    const articleId = propArticleId || urlArticleId;
+    const article = previewArticle || news.find(a => a.id === articleId || a.slug === articleId);
+
+    // Saved (bookmark) state using localStorage
+    const [isSaved, setIsSaved] = useState<boolean>(() => {
+        if (!articleId) return false;
+        try {
+            const saved = JSON.parse(localStorage.getItem('saved_articles') || '[]');
+            return saved.includes(articleId);
+        } catch { return false; }
+    });
+
+    // Share handler
+    const handleShare = async () => {
+        const shareData = {
+            title: article?.title || 'Noticias 24H',
+            text: article?.subtitle || article?.title || '',
+            url: window.location.href,
+        };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                alert('¡Enlace copiado al portapapeles!');
+            }
+        } catch (_) {
+            // User cancelled share — no-op
+        }
+    };
+
+    // Save / unsave to localStorage
+    const handleSave = () => {
+        if (!articleId) return;
+        try {
+            const saved: string[] = JSON.parse(localStorage.getItem('saved_articles') || '[]');
+            if (isSaved) {
+                const updated = saved.filter((id) => id !== articleId);
+                localStorage.setItem('saved_articles', JSON.stringify(updated));
+            } else {
+                localStorage.setItem('saved_articles', JSON.stringify([...saved, articleId]));
+            }
+            setIsSaved(!isSaved);
+        } catch { /* silent fail */ }
+    };
 
     useEffect(() => {
         if (article) {
@@ -33,9 +101,9 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="text-center">
                     <h1 className="text-4xl font-serif font-black text-accent mb-4">Artículo no encontrado</h1>
-                    <Link to="/" className="text-brand hover:underline font-black uppercase tracking-widest text-xs">
+                    <AppLink to="/" className="text-brand hover:underline font-black uppercase tracking-widest text-xs">
                         Volver al inicio
-                    </Link>
+                    </AppLink>
                 </div>
             </div>
         );
@@ -54,7 +122,7 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
             <div className="bg-gray-50 border-b border-gray-100 py-4">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                        <Link to="/" className="hover:text-brand transition-colors">Inicio</Link>
+                        <AppLink to="/" className="hover:text-brand transition-colors">Inicio</AppLink>
                         <ChevronRight size={10} />
                         <span className="text-brand">{article.category || 'Noticias'}</span>
                         <ChevronRight size={10} className="hidden md:block" />
@@ -118,11 +186,24 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                                 </div>
 
                                 <div className="ml-auto flex items-center gap-4">
-                                    <button className="p-3 border border-gray-100 hover:bg-brand hover:text-white transition-all rounded-none" title="Guardar">
-                                        <Bookmark size={18} />
+                                    <button
+                                        onClick={handleSave}
+                                        className={`p-3 border transition-all rounded-none group flex items-center gap-2 text-xs font-black uppercase tracking-widest ${isSaved
+                                            ? 'bg-brand text-white border-brand'
+                                            : 'border-gray-100 hover:bg-brand hover:text-white hover:border-brand'
+                                            }`}
+                                        title={isSaved ? 'Guardado' : 'Guardar'}
+                                    >
+                                        <Bookmark size={18} className={isSaved ? 'fill-white' : ''} />
+                                        <span className="hidden sm:inline">{isSaved ? 'Guardado' : 'Guardar'}</span>
                                     </button>
-                                    <button className="p-3 border border-gray-100 hover:bg-brand hover:text-white transition-all rounded-none" title="Compartir">
+                                    <button
+                                        onClick={handleShare}
+                                        className="p-3 border border-gray-100 hover:bg-brand hover:text-white hover:border-brand transition-all rounded-none flex items-center gap-2 text-xs font-black uppercase tracking-widest"
+                                        title="Compartir"
+                                    >
                                         <Share2 size={18} />
+                                        <span className="hidden sm:inline">Compartir</span>
                                     </button>
                                 </div>
                             </div>
@@ -205,7 +286,7 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                             <div className="flex flex-col gap-10">
                                 {relatedArticles.length > 0 ? (
                                     relatedArticles.map((rel) => (
-                                        <Link key={rel.id} to={`/articulo/${rel.id}`} className="group block">
+                                        <AppLink key={rel.id} to={getArticlePath(rel)} className="group block">
                                             <div className="flex gap-6">
                                                 <div className="w-24 h-24 shrink-0 overflow-hidden bg-accent border border-gray-100">
                                                     <OptimizedImage src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" width={200} />
@@ -217,11 +298,11 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                                                     </h4>
                                                 </div>
                                             </div>
-                                        </Link>
+                                        </AppLink>
                                     ))
                                 ) : (
                                     news.filter(a => a.id !== article.id).slice(0, 3).map((rel) => (
-                                        <Link key={rel.id} to={`/articulo/${rel.id}`} className="group block">
+                                        <AppLink key={rel.id} to={getArticlePath(rel)} className="group block">
                                             <div className="flex gap-6">
                                                 <div className="w-24 h-24 shrink-0 overflow-hidden bg-accent border border-gray-100">
                                                     <img src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" />
@@ -233,7 +314,7 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                                                     </h4>
                                                 </div>
                                             </div>
-                                        </Link>
+                                        </AppLink>
                                     ))
                                 )}
                             </div>
@@ -244,9 +325,9 @@ export default function NewsDetailPage({ previewArticle }: NewsDetailPageProps) 
                                     {news.slice(0, 5).map((pop, i) => (
                                         <li key={pop.id} className="flex gap-4 items-start">
                                             <span className="text-2xl font-serif font-black text-brand/20 leading-none">{i + 1}</span>
-                                            <Link to={`/articulo/${pop.id}`} className="text-xs font-black text-accent hover:text-brand transition-colors leading-relaxed line-clamp-2 uppercase">
+                                            <AppLink to={getArticlePath(pop)} className="text-xs font-black text-accent hover:text-brand transition-colors leading-relaxed line-clamp-2 uppercase">
                                                 {pop.title}
-                                            </Link>
+                                            </AppLink>
                                         </li>
                                     ))}
                                 </ol>
