@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import NewsDetailPage from '../../../components/NewsDetailPage';
 import { createSupabaseServerClient } from '../../../lib/supabase/server';
@@ -95,6 +95,15 @@ export default async function ArticleByIdPage(
   const row = await getArticleBySlugOrId(id).catch(() => null);
 
   if (!row) notFound();
+
+  // Si se accedió por UUID pero hay un slug, redirigir al slug
+  if (id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+    // Se accedió por UUID
+    if (row.slug) {
+      // Existe un slug, redirigir
+      redirect(`/articulo/${row.slug}`);
+    }
+  }
 
   const article = {
     id: String(row.id),

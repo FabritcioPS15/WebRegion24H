@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNews } from '../../context/NewsContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import VideoPlayer from '../../components/VideoPlayer';
 import { PlayCircle, Clock, Video as VideoIcon, X, ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import type { Video } from '../../types/news';
@@ -140,46 +141,16 @@ export default function VideosPage() {
             >
               <button
                 onClick={() => setSelectedVideo(null)}
-                className="absolute top-4 right-4 z-10 text-white/50 hover:text-white transition-colors bg-black/50 p-2 rounded-full backdrop-blur-md"
+                className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-colors bg-black/50 p-2 rounded-full backdrop-blur-md"
               >
                 <X className="h-6 w-6" />
               </button>
 
-              <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900 group">
-                <img
-                  src={selectedVideo.thumbnail}
-                  className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm"
-                  alt=""
-                />
-
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="relative z-10 text-center space-y-6"
-                >
-                  <PlayCircle className="h-24 w-24 text-brand mx-auto fill-brand/20 animate-pulse" />
-                  <div className="text-white space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                      Reproduciendo
-                    </p>
-                    <h2 className="text-2xl md:text-4xl font-serif font-black">
-                      {selectedVideo.title}
-                    </h2>
-                  </div>
-                </motion.div>
-
-                <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
-                  <div className="w-full h-1 bg-white/20 rounded-full mb-4 overflow-hidden">
-                    <div className="w-1/3 h-full bg-brand relative">
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform" />
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs font-black text-gray-400 uppercase tracking-widest">
-                    <span>04:20</span>
-                    <span>{selectedVideo.duration}</span>
-                  </div>
-                </div>
-              </div>
+              <VideoPlayer 
+                video={selectedVideo} 
+                className="w-full h-full"
+                autoplay={true}
+              />
             </div>
           </motion.div>
         )}
