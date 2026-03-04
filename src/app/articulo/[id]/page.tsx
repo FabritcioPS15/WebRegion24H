@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { cache } from 'react';
 
-import NewsDetailPage from '../../../components/NewsDetailPage';
+import ArticleDetailServer from '../../../components/ArticleDetailServer';
 import { createSupabaseServerClient } from '../../../lib/supabase/server';
 
 type Params = { id: string };
+
+export const revalidate = 300;
+
+const ARTICLE_SELECT =
+  'id,slug,title,subtitle,content,category,date,time,image,author,tags,featured,breaking,created_at,links,status,pull_quote,pullquote,intro';
+
+const RECO_SELECT = 'id,slug,title,category,date,time,image,created_at,status';
 
 // Generar páginas estáticas para todos los artículos
 export async function generateStaticParams() {
@@ -34,14 +42,14 @@ export async function generateStaticParams() {
   }
 }
 
-
-async function getArticleBySlugOrId(slugOrId: string) {
+const getArticleBySlugOrId = cache(async (slugOrId: string) => {
+  if (slugOrId === 'new_draft_id' || slugOrId === 'placeholder') return null;
   const supabase = createSupabaseServerClient();
 
   // Primero intenta por slug (SEO)
   const { data: bySlug, error: slugError } = await supabase
     .from('news')
-    .select('*')
+    .select(ARTICLE_SELECT)
     .eq('slug', slugOrId)
     .maybeSingle();
 
@@ -50,7 +58,7 @@ async function getArticleBySlugOrId(slugOrId: string) {
   // Fallback por UUID (compatibilidad con links antiguos)
   const { data: byId, error: idError } = await supabase
     .from('news')
-    .select('*')
+    .select(ARTICLE_SELECT)
     .eq('id', slugOrId)
     .maybeSingle();
 
@@ -62,7 +70,7 @@ async function getArticleBySlugOrId(slugOrId: string) {
   }
 
   return byId;
-}
+});
 
 export async function generateMetadata(
   { params }: { params: Promise<Params> }
@@ -79,7 +87,6 @@ export async function generateMetadata(
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || 'https://noticias24h.pe';
-
   const title = (row.title as string) || 'Artículo';
   const description =
     (row.subtitle as string) ||
@@ -137,14 +144,15 @@ export default async function ArticleByIdPage(
   const article = {
     id: String(row.id),
     slug: (row.slug as string) || undefined,
-    title: String(row.title ?? row.titulo ?? ''),
+    title: String(row.title ?? ''),
     subtitle: (row.subtitle ?? undefined) as string | undefined,
-    pullQuote: (row.pull_quote ?? undefined) as string | undefined,
+    pullQuote: (row.pull_quote ?? row.pullquote ?? undefined) as string | undefined,
     intro: (row.intro ?? undefined) as string | undefined,
-    content: String(row.content ?? row.contenido ?? ''),
-    category: String(row.category ?? row.categoria ?? ''),
-    date: String(row.date ?? row.fecha_publicacion ?? row.created_at ?? ''),
-    image: String(row.image ?? row.imagen ?? ''),
+    content: String(row.content ?? ''),
+    category: String(row.category ?? ''),
+    date: String(row.date ?? ''),
+    time: (row.time ?? undefined) as string | undefined,
+    image: String(row.image ?? ''),
     author: (row.author ?? undefined) as string | undefined,
     tags: (row.tags ?? undefined) as string[] | undefined,
     featured: (row.featured ?? false) as boolean,
@@ -160,5 +168,42 @@ export default async function ArticleByIdPage(
       | undefined,
   };
 
-  return <NewsDetailPage previewArticle={article} />;
+  const supabase = createSupabaseServerClient();
+  const { data: recentRows } = await supabase
+    .from('news')
+    .select(RECO_SELECT)
+    .or('status.is.null,status.eq.published')
+    .order('created_at', { ascending: false })
+    .limit(60);
+
+  const recent = (recentRows || [])
+    .filter((r: any) => r && r.id)
+    .map((r: any) => ({
+      id: String(r.id),
+      slug: (r.slug as string) || undefined,
+      title: String(r.title ?? ''),
+      category: String(r.category ?? ''),
+      date: String(r.date ?? ''),
+      time: (r.time ?? undefined) as string | undefined,
+      image: String(r.image ?? ''),
+    }));
+
+  const related = recent
+    .filter((a) => a.id !== article.id && a.category === article.category)
+    .slice(0, 3);
+
+  const more = recent
+    .filter((a) => a.id !== article.id && a.category !== article.category)
+    .slice(0, 3);
+
+  const mostRead = recent.filter((a) => a.id !== article.id).slice(0, 5);
+
+  return (
+    <ArticleDetailServer
+      article={article}
+      related={related}
+      more={more}
+      mostRead={mostRead}
+    />
+  );
 }

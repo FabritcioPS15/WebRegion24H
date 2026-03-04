@@ -4,6 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import { NewsArticle, Podcast, Video } from '../types/news';
 import { supabase } from '../lib/supabase';
 import imageCompression from 'browser-image-compression';
+import { slugify } from '../lib/slug';
 
 interface NewsContextType {
   news: NewsArticle[];
@@ -148,7 +149,17 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const addNews = async (article: Omit<NewsArticle, 'id'>) => {
-    const { data, error } = await supabase.from('news').insert([article]).select();
+    const payload: any = { ...article };
+    if (!payload.slug && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    if (payload.pullQuote !== undefined) {
+      payload.pull_quote = payload.pullQuote;
+      payload.pullquote = payload.pullQuote;
+      delete payload.pullQuote;
+    }
+
+    const { data, error } = await supabase.from('news').insert([payload]).select();
     if (error) throw error;
     if (data && data[0]) {
       setNews([data[0], ...news]);
@@ -157,7 +168,17 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const updateNews = async (id: string, updates: Partial<NewsArticle>) => {
-    const { data, error } = await supabase.from('news').update(updates).eq('id', id).select();
+    const payload: any = { ...updates };
+    if ((payload.slug === '' || payload.slug == null) && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    if (payload.pullQuote !== undefined) {
+      payload.pull_quote = payload.pullQuote;
+      payload.pullquote = payload.pullQuote;
+      delete payload.pullQuote;
+    }
+
+    const { data, error } = await supabase.from('news').update(payload).eq('id', id).select();
     if (error) throw error;
     if (data && data[0]) {
       setNews(news.map(article => article.id === id ? data[0] : article));

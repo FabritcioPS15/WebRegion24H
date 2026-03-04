@@ -5,6 +5,7 @@ import { useNews } from '../context/NewsContext';
 import { NewsArticle, Podcast, Video } from '../types/news';
 import { supabase } from '../lib/supabase';
 import { X, Edit2, Trash2, Plus, FileText, Video as VideoIcon, Radio, Clock, Eye, EyeOff, Upload, Loader2, Save, LayoutDashboard, PlayCircle, ArrowLeft, Monitor, Users, Link as LinkIcon } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
 import Header from './Header';
 import FeaturedNews from './FeaturedNews';
 import NewsGrid from './NewsGrid';
@@ -164,13 +165,9 @@ const NewsForm = ({ article, onSave, onCancel, setActiveDraft }: {
 
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Contenido</label>
-        <textarea
+        <RichTextEditor
           value={formData.content}
-          onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-          rows={8}
-          className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-serif text-accent"
-          placeholder="Escriba el contenido de la noticia aquí..."
-          required
+          onChange={(value) => setFormData({ ...formData, content: value })}
         />
       </div>
 
