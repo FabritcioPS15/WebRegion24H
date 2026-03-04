@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams } from 'react-router-dom';
 import AppLink from './AppLink';
 import { useEffect, useState } from 'react';
 import { useNews } from '../context/NewsContext';
@@ -18,17 +17,9 @@ interface NewsDetailPageProps {
 }
 
 export default function NewsDetailPage({ previewArticle, articleId: propArticleId }: NewsDetailPageProps) {
-    // Safely get URL params - useParams requires a Router context (Vite only)
-    // In Next.js (no Router context), it will throw an error.
-    let urlParams: { categoria?: string; slug?: string } = {};
-    try {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const params = useParams();
-        urlParams = { categoria: params.categoria, slug: params.slug };
-    } catch {
-        urlParams = {};
-    }
-
+    // In Next.js, we get the article ID directly from props or preview
+    const articleId = propArticleId;
+    
     // useNews requires a NewsProvider context (Vite). In Next.js it's not wrapped,
     // so we catch the error and fall back to empty data (previewArticle handles content).
     let news: NewsArticle[] = [];
@@ -40,7 +31,6 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
         // Outside NewsProvider context (Next.js) - previewArticle handles content
     }
 
-    const articleId = propArticleId || urlParams.slug;
     const article = previewArticle || news.find(a => a.id === articleId || a.slug === articleId);
 
     // Saved (bookmark) state using localStorage

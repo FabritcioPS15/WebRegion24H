@@ -3,6 +3,7 @@ import { slugify } from './slug';
 /**
  * Generates the canonical URL path for an article.
  * Uses slug if available, falls back to UUID id.
+ * Next.js pattern: /[categoria]/[slug]
  */
 export function getArticlePath(article: { id: string; slug?: string; title?: string; category?: string }): string {
     const slug = article.slug || (article.title ? slugify(article.title) : article.id);
