@@ -3,6 +3,7 @@
 import { Search, Menu, Youtube, Facebook, Twitter, X } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { getArticlePath } from '../lib/articlePath';
 import AppLink from './AppLink';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
@@ -135,7 +136,7 @@ export default function Header() {
                         {searchResults.map((article) => (
                           <Link
                             key={article.id}
-                            href={`/articulo/${article.slug || article.id}`}
+                            href={getArticlePath(article)}
                             onClick={handleResultClick}
                             className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                           >
@@ -201,7 +202,7 @@ export default function Header() {
                           {searchResults.map((article) => (
                             <Link
                               key={article.id}
-                              href={`/articulo/${article.slug || article.id}`}
+                              href={getArticlePath(article)}
                               onClick={handleResultClick}
                               className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                             >

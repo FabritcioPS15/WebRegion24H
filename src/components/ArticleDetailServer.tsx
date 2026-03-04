@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import DOMPurify from 'isomorphic-dompurify';
+import { getArticlePath } from '../lib/articlePath';
 
 import Header from './Header';
 import Footer from './Footer';
@@ -71,7 +72,7 @@ export default function ArticleDetailServer({
   more: ArticlePreview[];
   mostRead: ArticlePreview[];
 }) {
-  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
+  const hrefFor = (a: { id: string; slug?: string; category?: string; title?: string }) => getArticlePath(a);
   const imageUrl = getOptimizedUrl(article.image, 1200);
   const rawContent = article.content || '';
   const looksLikeHtml = /<\s*\w+[^>]*>/.test(rawContent);

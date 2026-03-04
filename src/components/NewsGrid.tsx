@@ -3,6 +3,7 @@
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { getArticlePath } from '../lib/articlePath';
 import OptimizedImage from './OptimizedImage';
 
 export default function NewsGrid() {
@@ -20,7 +21,7 @@ export default function NewsGrid() {
     return isRegular && articleCategory === currentCategory;
   }).slice(0, 8);
 
-  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
+  const hrefFor = (a: { id: string; slug?: string; category?: string; title?: string }) => getArticlePath(a);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-100">

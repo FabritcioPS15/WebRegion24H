@@ -5,6 +5,7 @@ import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
+import { getArticlePath } from '../lib/articlePath';
 
 export default function FeaturedNews() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
@@ -21,7 +22,7 @@ export default function FeaturedNews() {
 
   const sideNews = news.filter(article => !article.featured && article.breaking).slice(0, 3);
 
-  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
+  const hrefFor = (a: { id: string; slug?: string; category?: string; title?: string }) => getArticlePath(a);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

@@ -3,6 +3,7 @@
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { getArticlePath } from '../lib/articlePath';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
 
@@ -28,7 +29,7 @@ export default function HighlightSection() {
 
             <div className="space-y-10">
               {listArticles.map((article, index) => (
-                <Link href={`/articulo/${article.id}`} key={article.id} className="block">
+                <Link href={getArticlePath(article)} key={article.id} className="block">
                   <motion.div
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -77,7 +78,7 @@ export default function HighlightSection() {
               <p className="text-gray-300 mb-10 text-xl font-serif italic leading-relaxed border-l-2 border-brand pl-8">
                 "{spotlight.subtitle || "Un análisis exhaustivo sobre los desafíos actuales de nuestra sociedad moderna."}"
               </p>
-              <Link href={`/articulo/${spotlight.id}`}>
+              <Link href={getArticlePath(spotlight)}>
                 <div className="inline-block bg-white text-accent px-10 py-5 font-black uppercase tracking-[0.4em] text-[10px] hover:bg-brand hover:text-white transition-all shadow-xl group/btn flex items-center gap-4 cursor-pointer">
                   Lectura Completa <ArrowRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
                 </div>

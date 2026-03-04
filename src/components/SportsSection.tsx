@@ -3,6 +3,7 @@
 import { Calendar, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { getArticlePath } from '../lib/articlePath';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
 
@@ -24,7 +25,7 @@ export default function SportsSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         {sportsNews.map((item, index) => (
-          <Link href={`/articulo/${item.id}`} key={item.id}>
+          <Link href={getArticlePath(item)} key={item.id}>
             <motion.article
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
