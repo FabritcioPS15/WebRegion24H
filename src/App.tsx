@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { NewsProvider } from './context/NewsContext';
-import AuthModal from './components/AuthModal';
-import NewsDetailPage from './components/NewsDetailPage';
-import HomePage from './pages/HomePage';
-import PodcastsPage from './pages/PodcastsPage';
-import VideosPage from './pages/VideosPage';
-import EditorPage from './pages/EditorPage';
+import AuthModal from "./components/AuthModal";
+import NewsDetailPage from "./components/NewsDetailPage";
+import HomePage from "./legacy-pages/HomePage";
+import PodcastsPage from "./legacy-pages/PodcastsPage";
+import VideosPage from "./legacy-pages/VideosPage";
+import EditorPage from "./legacy-pages/EditorPage";
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
