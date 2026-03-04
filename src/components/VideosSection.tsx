@@ -14,7 +14,7 @@ export default function VideosSection() {
   }
 
   return (
-    <section className="bg-white py-24 my-20 border-t border-gray-100">
+    <section className="bg-white py-16 my-12 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center gap-6 mb-16">
           <h2 className="text-sm font-black text-accent uppercase tracking-[0.5em] border-l-4 border-brand pl-6">Producción Audiovisual</h2>

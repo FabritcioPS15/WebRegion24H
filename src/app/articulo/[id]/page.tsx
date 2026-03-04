@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from '../../../lib/supabase/server';
 
 type Params = { id: string };
 
-export const revalidate = 300;
+export const revalidate = 10;
 
 const ARTICLE_SELECT =
   'id,slug,title,subtitle,content,category,date,time,image,author,tags,featured,breaking,created_at,links,status,pull_quote,pullquote,intro';

@@ -5,26 +5,23 @@ import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
+import { slugify } from '../lib/slug';
 
 export default function FeaturedNews() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
-  const mainNews = news.find(article => article.featured) || news[0] || {
-    id: '1',
-    title: "Último momento",
-    subtitle: "Gobierno anuncia nuevas medidas económicas para el segundo semestre",
-    date: "22 de enero de 2025",
-    time: "14:30",
-    image: "https://images.pexels.com/photos/6894428/pexels-photo-6894428.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    category: "ECONOMÍA"
-  };
+  if (!news || news.length === 0) return null;
+
+  const mainNews = news.find(article => article.featured) || news[0];
+
+  if (!mainNews) return null;
 
   const sideNews = news.filter(article => !article.featured && article.breaking).slice(0, 3);
 
-  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
+  const hrefFor = (a: { id: string; slug?: string; category?: string; title?: string }) => `/${slugify(a.category || 'noticias')}/${a.slug || slugify(a.title || '') || a.id}`;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-12">
+    <section className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-8 border-b-2 border-black pb-4">
         <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Destacados del Día</h2>
         <div className="flex-1 h-[1px] bg-gray-100 italic text-[10px] text-gray-400 text-right">EDICIÓN EJECUTIVA</div>

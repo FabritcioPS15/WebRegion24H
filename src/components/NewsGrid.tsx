@@ -4,9 +4,12 @@ import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
+import { slugify } from '../lib/slug';
 
 export default function NewsGrid() {
   const { displayNews: news, selectedCategory, changedIds, isPreviewMode } = useNews();
+
+  if (!news || news.length === 0) return null;
 
   const filteredNews = news.filter(article => {
     const isRegular = !article.featured && !article.breaking;
@@ -20,10 +23,10 @@ export default function NewsGrid() {
     return isRegular && articleCategory === currentCategory;
   }).slice(0, 8);
 
-  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
+  const hrefFor = (a: { id: string; slug?: string; category?: string; title?: string }) => `/${slugify(a.category || 'noticias')}/${a.slug || slugify(a.title || '') || a.id}`;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-100">
+    <section className="max-w-7xl mx-auto px-4 py-12 border-t border-gray-100">
       <div className="flex items-center gap-4 mb-12">
         <h2 className="text-sm font-black text-accent uppercase tracking-[0.4em] border-l-4 border-brand pl-6 py-1">Archivo de Noticias</h2>
         <div className="flex-1 h-[1px] bg-gray-100"></div>

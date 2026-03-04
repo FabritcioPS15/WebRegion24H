@@ -14,7 +14,7 @@ import {
 } from '../../../lib/articles';
 import { slugify } from '../../../lib/slug';
 
-export const revalidate = 300;
+export const revalidate = 10;
 export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
@@ -80,13 +80,22 @@ export default async function ArticlePage({
   params: { categoria: string; slug: string };
 }) {
   const { categoria, slug } = params;
-  const article = await getArticleByCategoriaSlug(categoria, slug);
-  if (!article) notFound();
+  
+  try {
+    console.log(`[ArticlePage] Buscando artículo: categoria=${categoria}, slug=${slug}`);
+    const article = await getArticleByCategoriaSlug(categoria, slug);
+    
+    if (!article) {
+      console.log(`[ArticlePage] Artículo no encontrado: categoria=${categoria}, slug=${slug}`);
+      notFound();
+    }
 
-  const all = await getAllPublishedArticles();
-  const related = all
-    .filter((a) => a.id !== article.id && slugify(a.categoria) === slugify(article.categoria))
-    .slice(0, 3);
+    console.log(`[ArticlePage] Artículo encontrado:`, article.id, article.titulo);
+
+    const all = await getAllPublishedArticles();
+    const related = all
+      .filter((a) => a.id !== article.id && slugify(a.categoria) === slugify(article.categoria))
+      .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-white">
@@ -220,5 +229,10 @@ export default async function ArticlePage({
       <Footer />
     </div>
   );
+  } catch (error) {
+    console.error('[ArticlePage] Error al cargar artículo:', error);
+    console.error('[ArticlePage] Params:', { categoria, slug });
+    throw error;
+  }
 }
 
