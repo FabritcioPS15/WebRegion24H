@@ -3,6 +3,8 @@ export interface NewsArticle {
   slug?: string;
   title: string;
   subtitle?: string;
+  pullQuote?: string;
+  intro?: string;
   content: string;
   category: string;
   date: string;

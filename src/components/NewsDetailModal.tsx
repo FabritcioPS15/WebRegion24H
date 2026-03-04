@@ -47,10 +47,17 @@ export default function NewsDetailModal({ article, isOpen, onClose }: NewsDetail
                 {article.title}
               </h1>
 
-              {article.subtitle && (
+              {(article.pullQuote || article.subtitle) && (
                 <h2 className="text-xl md:text-2xl font-serif italic text-gray-500 mb-10 border-l-4 border-brand pl-8 py-2 leading-relaxed">
-                  {article.subtitle}
+                  {article.pullQuote || article.subtitle}
                 </h2>
+              )}
+
+              {article.intro && (
+                <div className="mb-8 prose prose-lg">
+                  <h3 className="text-2xl font-serif font-black mb-4">Introducción</h3>
+                  <p>{article.intro}</p>
+                </div>
               )}
 
               <div className="flex items-center gap-6 mb-12 py-6 border-y border-gray-50">

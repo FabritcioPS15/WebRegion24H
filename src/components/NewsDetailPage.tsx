@@ -4,12 +4,12 @@ import { useParams } from 'react-router-dom';
 import AppLink from './AppLink';
 import { useEffect, useState } from 'react';
 import { useNews } from '../context/NewsContext';
-import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight, Facebook, Twitter, Link2 } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
 import SubscriptionForm from './SubscriptionForm';
-import OptimizedImage from './OptimizedImage';
+import OptimizedImage from './OptimizedImage';  
 import { getArticlePath } from '../lib/articlePath';
 
 interface NewsDetailPageProps {
@@ -134,81 +134,56 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
             <main className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
 
-                    {/* Main Article Content */}
-                    <article className="lg:col-span-8">
+                    {/* Header spans full width */}
+                    <div className="lg:col-span-12">
                         <header className="mb-12">
-                            <div className="flex items-center gap-4 mb-8">
-                                <span className="bg-brand text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em]">
-                                    {article.category || 'EXCLUSIVO'}
-                                </span>
-                                {article.breaking && (
-                                    <span className="text-accent text-[10px] font-black uppercase tracking-widest animate-pulse flex items-center gap-2">
-                                        <span className="w-2 h-2 bg-brand rounded-full" />
-                                        Última Hora
-                                    </span>
-                                )}
-                            </div>
-
-                            <h1 className="text-4xl md:text-7xl font-serif font-black text-accent mb-8 leading-[1.05] tracking-tight">
+                            <h1 className="text-4xl md:text-7xl font-serif font-black text-accent mb-4 leading-[1.05] tracking-tight">
                                 {article.title}
                             </h1>
 
-                            {article.subtitle && (
-                                <h2 className="text-xl md:text-2xl font-serif italic text-gray-500 mb-10 border-l-4 border-brand pl-8 py-2 leading-relaxed">
-                                    {article.subtitle}
-                                </h2>
-                            )}
-
-                            <div className="flex flex-wrap items-center gap-y-6 gap-x-10 py-8 border-y border-gray-100">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-accent flex items-center justify-center text-white font-black text-sm uppercase tracking-tighter">
-                                        {((article as any).author?.[0] || 'R')}
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Escrito por</p>
-                                        <p className="text-sm font-black text-accent uppercase tracking-tighter">{(article as any).author || 'Redacción Región 24H'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-8">
-                                    <div className="text-gray-400 flex flex-col gap-1">
-                                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
-                                            <Calendar size={12} className="text-brand" /> Publicado
+                            {/* metadata + share icons on a single line */}
+                            <div className="flex flex-wrap items-center justify-between text-sm text-gray-600 gap-2 mb-8">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {article.breaking && (
+                                        <span className="text-accent font-black uppercase tracking-widest animate-pulse mr-2">
+                                            Última Hora
                                         </span>
-                                        <span className="text-xs font-black text-accent uppercase tracking-tighter">{article.date}</span>
-                                    </div>
-                                    <div className="text-gray-400 flex flex-col gap-1">
-                                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
-                                            <Clock size={12} className="text-brand" /> Lectura
-                                        </span>
-                                        <span className="text-xs font-black text-accent uppercase tracking-tighter">5 min aprox</span>
-                                    </div>
+                                    )}
+                                    {article.author && <span>Por {article.author}</span>}
+                                    {article.category && <span>| {article.category}</span>}
+                                    {article.date && <span>| {article.date}</span>}
                                 </div>
-
-                                <div className="ml-auto flex items-center gap-4">
-                                    <button
-                                        onClick={handleSave}
-                                        className={`p-3 border transition-all rounded-none group flex items-center gap-2 text-xs font-black uppercase tracking-widest ${isSaved
-                                            ? 'bg-brand text-white border-brand'
-                                            : 'border-gray-100 hover:bg-brand hover:text-white hover:border-brand'
-                                            }`}
-                                        title={isSaved ? 'Guardado' : 'Guardar'}
-                                    >
-                                        <Bookmark size={18} className={isSaved ? 'fill-white' : ''} />
-                                        <span className="hidden sm:inline">{isSaved ? 'Guardado' : 'Guardar'}</span>
-                                    </button>
-                                    <button
+                                <div className="flex items-center gap-4 text-gray-500">
+                                    <Facebook
+                                        size={18}
+                                        className="cursor-pointer hover:text-brand"
                                         onClick={handleShare}
-                                        className="p-3 border border-gray-100 hover:bg-brand hover:text-white hover:border-brand transition-all rounded-none flex items-center gap-2 text-xs font-black uppercase tracking-widest"
-                                        title="Compartir"
-                                    >
-                                        <Share2 size={18} />
-                                        <span className="hidden sm:inline">Compartir</span>
-                                    </button>
+                                    />
+                                    <Twitter
+                                        size={18}
+                                        className="cursor-pointer hover:text-brand"
+                                        onClick={handleShare}
+                                    />
+                                    <Link2
+                                        size={18}
+                                        className="cursor-pointer hover:text-brand"
+                                        onClick={handleShare}
+                                    />
+                                    <span className="text-xs font-black">23</span>
                                 </div>
                             </div>
-                        </header>
 
+                            {/* pull-quote block (prefers pullQuote, falls back to subtitle) */}
+                            {(article.pullQuote || article.subtitle) && (
+                                <blockquote className="text-2xl md:text-3xl font-serif italic text-gray-700 mb-10 border-l-4 border-brand pl-8 py-2 leading-relaxed">
+                                    {article.pullQuote || article.subtitle}
+                                </blockquote>
+                            )}
+                        </header>
+                    </div>
+
+                    {/* Main Article Content */}
+                    <article className="lg:col-span-8">
                         <div className="relative aspect-video mb-16 overflow-hidden bg-accent">
                             <OptimizedImage
                                 src={article.image}
@@ -217,8 +192,23 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
                                 priority={true}
                                 width={1200}
                             />
+
+                            {/* category label overlay on image */}
+                            {article.category && (
+                                <span className="absolute bottom-4 left-4 bg-brand text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                                    {article.category}
+                                </span>
+                            )}
                         </div>
 
+                        {article.intro && (
+                            <div className="prose prose-xl prose-serif max-w-none mb-12">
+                                <h3 className="text-2xl font-serif font-black mb-6">Introducción</h3>
+                                <p className="text-gray-800 font-serif text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
+                                    {article.intro}
+                                </p>
+                            </div>
+                        )}
                         <div className="prose prose-xl prose-serif max-w-none mb-20">
                             <p className="text-gray-800 font-serif text-xl md:text-2xl leading-relaxed whitespace-pre-wrap first-letter:text-8xl first-letter:font-black first-letter:float-left first-letter:mr-4 first-letter:text-accent first-letter:mt-2">
                                 {article.content}
@@ -283,19 +273,27 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
                                 <div className="flex-1 h-[1px] bg-gray-100"></div>
                             </div>
 
-                            <div className="flex flex-col gap-10">
+                            {/* category heading above list */}
+                            <div className="bg-brand text-white text-xs font-black uppercase tracking-widest px-4 py-2 mb-6">
+                                {article.category || 'RELACIONADOS'}
+                            </div>
+                            <div className="flex flex-col gap-6">
                                 {relatedArticles.length > 0 ? (
                                     relatedArticles.map((rel) => (
                                         <AppLink key={rel.id} to={getArticlePath(rel)} className="group block">
-                                            <div className="flex gap-6">
-                                                <div className="w-24 h-24 shrink-0 overflow-hidden bg-accent border border-gray-100">
+                                            <div className="flex gap-4 p-4 bg-white border border-gray-100 hover:shadow-lg transition-all">
+                                                <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-accent">
                                                     <OptimizedImage src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" width={200} />
                                                 </div>
-                                                <div>
+                                                <div className="flex-1">
                                                     <span className="text-brand text-[8px] font-black uppercase tracking-widest mb-1 block">{rel.category}</span>
-                                                    <h4 className="text-md font-serif font-black text-accent group-hover:text-brand leading-tight transition-colors line-clamp-3">
+                                                    <h4 className="text-sm font-serif font-black text-accent group-hover:text-brand leading-tight line-clamp-2">
                                                         {rel.title}
                                                     </h4>
+                                                    <div className="text-[10px] text-gray-400 flex gap-2 mt-1">
+                                                        {rel.date && <><Calendar size={12} className="inline" /> <span>{rel.date}</span></>}
+                                                        {rel.time && <><Clock size={12} className="inline" /> <span>{rel.time}</span></>}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </AppLink>
@@ -303,20 +301,52 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
                                 ) : (
                                     news.filter(a => a.id !== article.id).slice(0, 3).map((rel) => (
                                         <AppLink key={rel.id} to={getArticlePath(rel)} className="group block">
-                                            <div className="flex gap-6">
-                                                <div className="w-24 h-24 shrink-0 overflow-hidden bg-accent border border-gray-100">
+                                            <div className="flex gap-4 p-4 bg-white border border-gray-100 hover:shadow-lg transition-all">
+                                                <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-accent">
                                                     <img src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" />
                                                 </div>
-                                                <div>
+                                                <div className="flex-1">
                                                     <span className="text-brand text-[8px] font-black uppercase tracking-widest mb-1 block">{rel.category}</span>
-                                                    <h4 className="text-md font-serif font-black text-accent group-hover:text-brand leading-tight transition-colors line-clamp-3">
+                                                    <h4 className="text-sm font-serif font-black text-accent group-hover:text-brand leading-tight line-clamp-2">
                                                         {rel.title}
                                                     </h4>
+                                                    <div className="text-[10px] text-gray-400 flex gap-2 mt-1">
+                                                        {rel.date && <><Calendar size={12} className="inline" /> <span>{rel.date}</span></>}
+                                                        {rel.time && <><Clock size={12} className="inline" /> <span>{rel.time}</span></>}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </AppLink>
                                     ))
                                 )}
+                            </div>
+
+                            {/* additional recommendations from other categories */}
+                            <div className="mt-8">
+                                <div className="bg-brand text-white text-xs font-black uppercase tracking-widest px-4 py-2 mb-4">
+                                    Más recomendaciones
+                                </div>
+                                <div className="flex flex-col gap-6">
+                                    {news.filter(a => a.category !== article.category && a.id !== article.id).slice(0, 3).map((rel) => (
+                                        <AppLink key={rel.id} to={getArticlePath(rel)} className="group block">
+                                            <div className="flex gap-4 p-4 bg-white border border-gray-100 hover:shadow-lg transition-all">
+                                                <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-accent">
+                                                    <OptimizedImage src={rel.image} alt={rel.title} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500" width={200} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <span className="text-brand text-[8px] font-black uppercase tracking-widest mb-1 block">{rel.category}</span>
+                                                    <h4 className="text-sm font-serif font-black text-accent group-hover:text-brand leading-tight line-clamp-2">
+                                                        {rel.title}
+                                                    </h4>
+                                                    <div className="text-[10px] text-gray-400 flex gap-2 mt-1">
+                                                        {rel.date && <><Calendar size={12} className="inline" /> <span>{rel.date}</span></>}
+                                                        {rel.time && <><Clock size={12} className="inline" /> <span>{rel.time}</span></>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </AppLink>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="mt-12 p-8 border border-gray-100 bg-gray-50/50">

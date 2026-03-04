@@ -31,6 +31,8 @@ const NewsForm = ({ article, onSave, onCancel, setActiveDraft }: {
   const [formData, setFormData] = useState({
     title: article?.title || '',
     subtitle: article?.subtitle || '',
+    pullQuote: article?.pullQuote || '',
+    intro: article?.intro || '',
     content: article?.content || '',
     category: article?.category || '',
     date: article?.date || new Date().toLocaleDateString('es-ES'),
@@ -136,6 +138,28 @@ const NewsForm = ({ article, onSave, onCancel, setActiveDraft }: {
             placeholder="Breve bajada o subtítulo..."
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Cita destacada / Pull Quote</label>
+        <input
+          type="text"
+          value={formData.pullQuote}
+          onChange={(e) => setFormData({ ...formData, pullQuote: e.target.value })}
+          className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-serif italic text-accent"
+          placeholder="Frase o extracto que se destaque..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Introducción (Opcional)</label>
+        <textarea
+          value={formData.intro}
+          onChange={(e) => setFormData({ ...formData, intro: e.target.value })}
+          rows={4}
+          className="w-full px-5 py-4 bg-gray-50 border border-gray-200 focus:outline-none focus:border-brand transition-all font-serif text-accent"
+          placeholder="Texto que aparecerá bajo el encabezado 'Introducción'..."
+        />
       </div>
 
       <div className="space-y-2">

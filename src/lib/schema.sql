@@ -3,6 +3,8 @@ CREATE TABLE news (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   title TEXT NOT NULL,
   subtitle TEXT,
+  pull_quote TEXT,
+  intro TEXT,
   content TEXT NOT NULL,
   category TEXT NOT NULL,
   date TEXT NOT NULL,
@@ -27,6 +29,8 @@ CREATE TABLE news (
 
 -- Add status column to address visibility and future approval flow
 ALTER TABLE news ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('published', 'hidden', 'draft', 'pending')) DEFAULT 'published';
+ALTER TABLE news ADD COLUMN IF NOT EXISTS pull_quote TEXT;
+ALTER TABLE news ADD COLUMN IF NOT EXISTS intro TEXT;
 ALTER TABLE podcasts ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('published', 'hidden', 'draft', 'pending')) DEFAULT 'published';
 ALTER TABLE videos ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('published', 'hidden', 'draft', 'pending')) DEFAULT 'published';
 

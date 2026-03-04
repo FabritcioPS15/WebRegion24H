@@ -1,8 +1,10 @@
-INSERT INTO news (title, subtitle, content, category, date, time, image, author, tags, featured, breaking, status, links)
+INSERT INTO news (title, subtitle, pull_quote, intro, content, category, date, time, image, author, tags, featured, breaking, status, links)
 VALUES 
   (
     'Inauguración del Nuevo Hospital Regional',
     'Una obra esperada por más de 10 años',
+    '',
+    '',
     'El presidente regional inauguró hoy las modernas instalaciones del hospital que beneficiará a más de 500,000 habitantes. Cuenta con equipos de última generación...',
     'Región',
     '04 de Febrero, 2026',
@@ -18,6 +20,8 @@ VALUES
   (
     'Crisis Hídrica: Agricultores Piden Ayuda',
     'La sequía afecta a más del 60% de los cultivos',
+    '',
+    '',
     'Representantes del sector agrario se reunieron con autoridades locales para exigir medidas urgentes ante la falta de lluvias que amenaza la campaña de este año...',
     'Nacionales',
     '03 de Febrero, 2026',
@@ -33,6 +37,8 @@ VALUES
   (
     'El Turismo Crece un 15% este Verano',
     'Playas del norte son las más visitadas',
+    '',
+    '',
     'El Ministerio de Turismo reportó cifras alentadoras para el sector. La ocupación hotelera en Tumbes y Piura alcanzó niveles históricos durante el mes de enero...',
     'Economía',
     '02 de Febrero, 2026',
@@ -48,6 +54,8 @@ VALUES
   (
     'Triunfo Histórico de la Selección de Vóley',
     'Clasifican al mundial después de 12 años',
+    '',
+    '',
     'En un partido vibrante, el equipo nacional venció a Brasil por 3 sets a 2. La capitana del equipo destacó el esfuerzo y la disciplina del grupo...',
     'Deportes',
     '01 de Febrero, 2026',
@@ -63,6 +71,8 @@ VALUES
   (
     'Nuevas Tecnologías para la Educación Rural',
     'Tablets con internet satelital llegan a la sierra',
+    '',
+    '',
     'El programa "Conectados" entregó hoy 5,000 dispositivos a escolares de zonas alejadas. Se espera reducir la brecha digital en un 20% para finales de año...',
     'Nacionales',
     '31 de Enero, 2026',
@@ -78,6 +88,8 @@ VALUES
   (
     'Feria Gastronómica "Sabores del Valle"',
     'Este fin de semana en la plaza principal',
+    '',
+    '',
     'Más de 50 expositores presentarán lo mejor de la cocina local. Habrá concursos, música en vivo y clases maestras con chefs reconocidos...',
     'Información',
     '30 de Enero, 2026',
@@ -93,6 +105,8 @@ VALUES
   (
     'Mercados Globales Cierran con Pérdidas',
     'Incertidumbre por conflictos internacionales',
+    '',
+    '',
     'Las bolsas de Nueva York y Londres registraron caídas significativas hoy. Expertos advierten sobre una posible recesión si la situación geopolítica no mejora...',
     'Internacionales',
     '29 de Enero, 2026',
@@ -108,6 +122,8 @@ VALUES
   (
     'Alerta Ambiental: Derrame de Petróleo',
     'Controlan fuga en oleoducto tras 48 horas',
+    '',
+    '',
     'Equipos de emergencia lograron contener el vertido que amenazaba un río local. Autoridades investigan las causas y anuncian sanciones severas...',
     'Región',
     '28 de Enero, 2026',
