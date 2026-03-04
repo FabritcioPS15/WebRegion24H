@@ -10,6 +10,8 @@ import { slugify } from '../lib/slug';
 export default function FeaturedNews() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
+  if (!news || news.length === 0) return null;
+
   const mainNews = news.find(article => article.featured) || news[0];
 
   if (!mainNews) return null;

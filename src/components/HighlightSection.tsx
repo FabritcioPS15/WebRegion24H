@@ -10,6 +10,8 @@ import { slugify } from '../lib/slug';
 export default function HighlightSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
+  if (!news || news.length === 0) return null;
+
   // Use non-featured news for the list
   const listArticles = news.filter(n => !n.featured).slice(0, 4);
   // Use a featured one or just the first for the big block

@@ -9,6 +9,8 @@ import { slugify } from '../lib/slug';
 export default function NewsGrid() {
   const { displayNews: news, selectedCategory, changedIds, isPreviewMode } = useNews();
 
+  if (!news || news.length === 0) return null;
+
   const filteredNews = news.filter(article => {
     const isRegular = !article.featured && !article.breaking;
     // Since 'news' (from displayNews) is already filtered by category in the context,

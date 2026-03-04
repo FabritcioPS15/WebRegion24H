@@ -10,6 +10,8 @@ import { slugify } from '../lib/slug';
 export default function SportsSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
 
+  if (!news || news.length === 0) return null;
+
   const sportsNews = news.filter(article => article.category?.toLowerCase() === 'deportes').slice(0, 3);
 
   if (sportsNews.length === 0) {

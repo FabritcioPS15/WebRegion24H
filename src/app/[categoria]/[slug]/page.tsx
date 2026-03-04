@@ -14,7 +14,7 @@ import {
 } from '../../../lib/articles';
 import { slugify } from '../../../lib/slug';
 
-export const revalidate = 300;
+export const revalidate = 10;
 export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
