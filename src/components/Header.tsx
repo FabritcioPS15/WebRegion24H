@@ -135,7 +135,7 @@ export default function Header() {
                         {searchResults.map((article) => (
                           <Link
                             key={article.id}
-                            href={`/articulo/${article.id}`}
+                            href={`/articulo/${article.slug || article.id}`}
                             onClick={handleResultClick}
                             className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                           >
@@ -162,7 +162,7 @@ export default function Header() {
               </div>
 
               <ul className={`hidden lg:flex items-center w-full ${mobileMenuOpen ? 'flex' : ''} flex-col lg:flex-row justify-center`}>
-                {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Más'].map((item) => (
+                {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Empresarial', 'Más'].map((item) => (
                   <li key={item} className="group list-none">
                     <button
                       onClick={() => {
@@ -201,7 +201,7 @@ export default function Header() {
                           {searchResults.map((article) => (
                             <Link
                               key={article.id}
-                              href={`/articulo/${article.id}`}
+                              href={`/articulo/${article.slug || article.id}`}
                               onClick={handleResultClick}
                               className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                             >
@@ -240,7 +240,7 @@ export default function Header() {
                 animate={{ opacity: 1, height: 'auto' }}
                 className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-xl overflow-hidden z-20"
               >
-                {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Más'].map((item) => (
+                {['Información', 'Nacionales', 'Internacionales', 'Economía', 'Deportes', 'Región', 'Empresarial', 'Más'].map((item) => (
                   <button
                     key={item}
                     onClick={() => {

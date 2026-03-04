@@ -279,7 +279,7 @@ const NewsForm = ({ article, onSave, onCancel, setActiveDraft }: {
             required
           >
             <option value="">Seleccionar</option>
-            {['Economía', 'Salud', 'Tecnología', 'Urbanismo', 'Medio Ambiente', 'Educación', 'Deportes', 'Internacionales', 'Nacionales', 'Región'].map(cat => (
+            {['Economía', 'Salud', 'Tecnología', 'Urbanismo', 'Medio Ambiente', 'Educación', 'Deportes', 'Internacionales', 'Nacionales', 'Región', 'Empresarial'].map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>

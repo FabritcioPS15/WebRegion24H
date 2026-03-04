@@ -14,7 +14,8 @@ export default function Footer() {
     "Deportes",
     "Cultura",
     "Tecnología",
-    "Salud"
+    "Salud",
+    "Empresarial"
   ];
 
   return (
