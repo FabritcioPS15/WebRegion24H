@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
+import { slugify } from '../lib/slug';
 
 export default function SportsSection() {
   const { displayNews: news, changedIds, isPreviewMode } = useNews();
@@ -16,7 +17,7 @@ export default function SportsSection() {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-24 border-t border-gray-100">
+    <section className="max-w-7xl mx-auto px-6 py-10 border-t border-gray-100 mb-8">
       <div className="flex items-center gap-6 mb-16">
         <h2 className="text-sm font-black text-accent uppercase tracking-[0.5em] border-l-4 border-brand pl-6">Crónica Deportiva</h2>
         <div className="flex-1 h-[1px] bg-gray-100"></div>
@@ -24,7 +25,7 @@ export default function SportsSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         {sportsNews.map((item, index) => (
-          <Link href={`/articulo/${item.id}`} key={item.id}>
+          <Link href={`/${slugify(item.category)}/${item.slug || slugify(item.title) || item.id}`} key={item.id}>
             <motion.article
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}

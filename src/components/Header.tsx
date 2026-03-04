@@ -6,6 +6,7 @@ import Link from 'next/link';
 import AppLink from './AppLink';
 import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
+import { slugify } from '../lib/slug';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -135,7 +136,7 @@ export default function Header() {
                         {searchResults.map((article) => (
                           <Link
                             key={article.id}
-                            href={`/articulo/${article.slug || article.id}`}
+                            href={`/${slugify(article.category)}/${article.slug || slugify(article.title) || article.id}`}
                             onClick={handleResultClick}
                             className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                           >
@@ -201,7 +202,7 @@ export default function Header() {
                           {searchResults.map((article) => (
                             <Link
                               key={article.id}
-                              href={`/articulo/${article.slug || article.id}`}
+                              href={`/${slugify(article.category)}/${article.slug || slugify(article.title) || article.id}`}
                               onClick={handleResultClick}
                               className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                             >

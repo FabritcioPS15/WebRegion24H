@@ -25,7 +25,7 @@ export default function PodcastSection() {
   };
 
   return (
-    <section className="bg-accent py-24 my-20 overflow-hidden border-y-8 border-brand">
+    <section className="bg-accent py-16 my-12 overflow-hidden border-y-8 border-brand">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center gap-6 mb-16 border-b border-white/10 pb-8">
           <h2 className="text-sm font-black text-brand uppercase tracking-[0.5em]">AUDIENCIA EJECUTIVA</h2>
