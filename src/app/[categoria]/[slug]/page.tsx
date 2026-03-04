@@ -80,8 +80,20 @@ export default async function ArticlePage({
   params: { categoria: string; slug: string };
 }) {
   const { categoria, slug } = params;
+  
+  console.log('[ArticlePage] Buscando artículo:', { categoria, slug });
+  
+  // Si los parámetros son undefined, intentar obtenerlos de la URL
+  if (!categoria || !slug) {
+    console.error('[ArticlePage] Parámetros inválidos:', { categoria, slug });
+    notFound();
+  }
+  
   const article = await getArticleByCategoriaSlug(categoria, slug);
-  if (!article) notFound();
+  if (!article) {
+    console.error('[ArticlePage] Artículo no encontrado:', { categoria, slug });
+    notFound();
+  }
 
   const all = await getAllPublishedArticles();
   const related = all

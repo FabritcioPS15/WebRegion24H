@@ -89,19 +89,35 @@ async function findArticleByCategoriaAndSlug(
 
 export const getArticleByCategoriaSlug = cache(
   async (categoriaParam: string, slugParam: string) => {
+    console.log('[getArticleByCategoriaSlug] Buscando:', { categoriaParam, slugParam });
+    
     const supabase = createSupabaseServerClient();
 
     // 1) Buscar por slug (forma recomendada)
     const res = await supabase.from(TABLE).select(SELECT_LIST).eq('slug', slugParam);
 
+    console.log('[getArticleByCategoriaSlug] Resultado búsqueda por slug:', { 
+      error: res.error, 
+      dataCount: res.data?.length || 0 
+    });
+
     // Si la columna slug no existe o falla, intentar compatibilidad con ruta antigua por id
     if (res.error) {
       const msg = String((res.error as any)?.message || '');
+      console.log('[getArticleByCategoriaSlug] Error en consulta:', msg);
+      
       const looksLikeMissingSlug =
         msg.toLowerCase().includes('slug') && msg.toLowerCase().includes('column');
 
       if (looksLikeMissingSlug) {
+        console.log('[getArticleByCategoriaSlug] Columna slug no existe, usando fallback');
         // No hay columna slug: buscamos por slug generado (slugify(titulo)) o por id
+        return await findArticleByCategoriaAndSlug(categoriaParam, slugParam);
+      }
+
+      // Si el error es sobre 'titulo', intentar con 'title'
+      if (msg.includes('titulo') && msg.includes('does not exist')) {
+        console.log('[getArticleByCategoriaSlug] Columna titulo no existe, usando fallback con todos los artículos');
         return await findArticleByCategoriaAndSlug(categoriaParam, slugParam);
       }
 
@@ -110,12 +126,14 @@ export const getArticleByCategoriaSlug = cache(
 
     const candidates = (res.data || []).map(mapRowToArticle).filter(isPublished);
     if (candidates.length === 0) {
+      console.log('[getArticleByCategoriaSlug] Sin candidatos, usando fallback');
       // La columna slug existe pero este registro no tiene slug rellenado:
       // usamos el mismo fallback basado en titulo/id.
       return await findArticleByCategoriaAndSlug(categoriaParam, slugParam);
     }
 
     const match = candidates.find((a) => slugify(a.categoria) === categoriaParam);
+    console.log('[getArticleByCategoriaSlug] Artículo encontrado:', !!match);
     return match || candidates[0] || null;
   },
 );
