@@ -21,7 +21,7 @@ export default function FeaturedNews() {
 
   const sideNews = news.filter(article => !article.featured && article.breaking).slice(0, 3);
 
-  const hrefFor = (a: any) => `/articulo/${a.id}`;
+  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

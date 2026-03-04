@@ -20,7 +20,7 @@ export default function NewsGrid() {
     return isRegular && articleCategory === currentCategory;
   }).slice(0, 8);
 
-  const hrefFor = (a: any) => `/articulo/${a.id}`;
+  const hrefFor = (a: { id: string; slug?: string }) => `/articulo/${a.slug || a.id}`;
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-100">
