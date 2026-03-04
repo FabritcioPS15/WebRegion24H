@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import AppLink from './AppLink';
 import { useEffect, useState } from 'react';
 import { useNews } from '../context/NewsContext';
-import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight, Facebook, Twitter, Link2 } from 'lucide-react';
+import { Clock, Calendar, Share2, ArrowLeft, ChevronRight, Facebook, Twitter, Link2 } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
@@ -18,15 +18,15 @@ interface NewsDetailPageProps {
 }
 
 export default function NewsDetailPage({ previewArticle, articleId: propArticleId }: NewsDetailPageProps) {
-    // Safely get URL param - useParams requires a Router context (Vite only)
+    // Safely get URL params - useParams requires a Router context (Vite only)
     // In Next.js (no Router context), it will throw an error.
-    let urlArticleId: string | undefined;
+    let urlParams: { categoria?: string; slug?: string } = {};
     try {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const params = useParams();
-        urlArticleId = params.id;
+        urlParams = { categoria: params.categoria, slug: params.slug };
     } catch {
-        urlArticleId = undefined;
+        urlParams = {};
     }
 
     // useNews requires a NewsProvider context (Vite). In Next.js it's not wrapped,
@@ -40,7 +40,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
         // Outside NewsProvider context (Next.js) - previewArticle handles content
     }
 
-    const articleId = propArticleId || urlArticleId;
+    const articleId = propArticleId || urlParams.slug;
     const article = previewArticle || news.find(a => a.id === articleId || a.slug === articleId);
 
     // Saved (bookmark) state using localStorage

@@ -30,7 +30,7 @@ function App() {
           <Route path="/podcasts" element={<PodcastsPage />} />
           <Route path="/videos" element={<VideosPage />} />
           <Route path="/admin" element={<EditorPage />} />
-          <Route path="/articulo/:id" element={<NewsDetailPage />} />
+          <Route path="/:categoria/:slug" element={<NewsDetailPage />} />
         </Routes>
         <AuthModal
           isOpen={showAuth}
