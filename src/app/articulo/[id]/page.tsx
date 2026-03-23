@@ -10,7 +10,7 @@ type Params = { id: string };
 export const revalidate = 300;
 
 const ARTICLE_SELECT =
-  'id,slug,title,subtitle,content,category,date,time,image,author,tags,featured,breaking,created_at,links,status,pull_quote,pullquote,intro';
+  'id,slug,title,subtitle,content,category,date,time,image,author,tags,featured,breaking,created_at,links,status,pull_quote,intro';
 
 const RECO_SELECT = 'id,slug,title,category,date,time,image,created_at,status';
 
@@ -146,7 +146,7 @@ export default async function ArticleByIdPage(
     slug: (row.slug as string) || undefined,
     title: String(row.title ?? ''),
     subtitle: (row.subtitle ?? undefined) as string | undefined,
-    pullQuote: (row.pull_quote ?? row.pullquote ?? undefined) as string | undefined,
+    pullQuote: (row.pull_quote ?? undefined) as string | undefined,
     intro: (row.intro ?? undefined) as string | undefined,
     content: String(row.content ?? ''),
     category: String(row.category ?? ''),
