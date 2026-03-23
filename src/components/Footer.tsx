@@ -29,9 +29,9 @@ export default function Footer() {
         >
           <div className="space-y-8">
             <AppLink to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="block group">
-              <h3 className="text-4xl font-serif font-black tracking-tighter uppercase leading-none">NOTICIAS <span className="text-brand">24H</span></h3>
+              <h3 className="text-4xl font-black tracking-tighter uppercase leading-none">NOTICIAS <span className="text-brand">24H</span></h3>
             </AppLink>
-            <p className="text-gray-500 text-xs font-serif italic leading-relaxed max-w-xs">
+            <p className="text-gray-500 text-xs italic leading-relaxed max-w-xs">
               "La excelencia en el periodismo es nuestra única brújula. Informando con rigor y elegancia a toda la región."
             </p>
             <div className="flex gap-4">
@@ -82,7 +82,7 @@ export default function Footer() {
 
           <div>
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-brand mb-8">Suscripción Ejecutiva</h4>
-            <p className="text-gray-500 text-xs font-serif italic mb-8">
+            <p className="text-gray-500 text-xs italic mb-8">
               Reciba nuestro boletín matutino con los hechos que mueven el mundo.
             </p>
             <div className="flex flex-col gap-4">
@@ -96,9 +96,9 @@ export default function Footer() {
             © 2025 NOTICIAS 24H • PERIODISMO DE ALTURA INDEPENDIENTE
           </div>
           <div className="flex gap-10 text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">
-            <a href="#" className="hover:text-brand transition-colors">Términos Legales</a>
-            <a href="#" className="hover:text-brand transition-colors">Privacidad</a>
-            <a href="#" className="hover:text-brand transition-colors">Política de Calidad</a>
+            <AppLink to="/terminos" className="hover:text-brand transition-colors">Términos Legales</AppLink>
+            <AppLink to="/privacidad" className="hover:text-brand transition-colors">Privacidad</AppLink>
+            <AppLink to="/calidad" className="hover:text-brand transition-colors">Política de Calidad</AppLink>
           </div>
         </div>
       </div>

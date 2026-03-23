@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Play, Clock, Radio, ChevronRight, ChevronLeft, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AppLink from '../components/AppLink';
+import { getPodcastPath } from '../lib/podcastPath';
 
 export default function PodcastsPage() {
     const { displayPodcasts: podcasts } = useNews();
@@ -40,12 +42,6 @@ export default function PodcastsPage() {
             /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = url.match(regExp);
         return match && match[2].length === 11 ? match[2] : null;
-    };
-
-    const handlePodcastClick = (podcast: any) => {
-        setSelectedPodcast(podcast);
-        setIsPlaying(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const nextPodcast = () => {
@@ -210,16 +206,18 @@ export default function PodcastsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {podcasts.map((podcast, index) => (
-                            <motion.article
+                            <AppLink
                                 key={podcast.id}
-                                onClick={() => handlePodcastClick(podcast)}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                viewport={{ once: true }}
-                                className={`group cursor-pointer ${selectedPodcast?.id === podcast.id ? 'opacity-50 grayscale' : ''
+                                to={getPodcastPath(podcast)}
+                                className={`group block cursor-pointer transition-all ${selectedPodcast?.id === podcast.id ? 'opacity-50 grayscale' : ''
                                     }`}
                             >
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    viewport={{ once: true }}
+                                >
                                 <div className="relative aspect-square overflow-hidden mb-6 bg-accent">
                                     <img
                                         src={podcast.image}
@@ -251,7 +249,8 @@ export default function PodcastsPage() {
                                         {podcast.description}
                                     </p>
                                 </div>
-                            </motion.article>
+                                </motion.div>
+                            </AppLink>
                         ))}
                     </div>
                 </section>

@@ -21,7 +21,7 @@ export default function VideosPage() {
       <Header />
 
       <main className="pt-0">
-        <div className="bg-zinc-900 border-b border-white/10 py-3">
+        <div className="bg-zinc-900/90 backdrop-blur-md border-b border-white/10 py-3 sticky top-[100px] md:top-[120px] z-[40] transition-all duration-300 shadow-2xl">
           <div className="max-w-7xl mx-auto px-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
             <Link
               href="/"
@@ -31,7 +31,17 @@ export default function VideosPage() {
               Inicio
             </Link>
             <ChevronRight className="h-3 w-3 text-gray-700" />
-            <span className="text-brand">Videos</span>
+            <Link href="/videos" className={!selectedVideo ? "text-brand" : "hover:text-white transition-colors"}>
+              Videos
+            </Link>
+            {selectedVideo && (
+              <>
+                <ChevronRight className="h-3 w-3 text-gray-700" />
+                <span className="text-brand truncate max-w-[200px] sm:max-w-none">
+                  {selectedVideo.title}
+                </span>
+              </>
+            )}
           </div>
         </div>
 

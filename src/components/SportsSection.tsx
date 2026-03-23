@@ -5,9 +5,33 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
+import { Skeleton } from './LoadingSkeleton';
 
 export default function SportsSection() {
-  const { displayNews: news, changedIds, isPreviewMode } = useNews();
+  const { displayNews: news, changedIds, isPreviewMode, isLoading } = useNews();
+
+  if (isLoading) {
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-16 border-t border-gray-100">
+        <div className="flex items-center gap-6 mb-12">
+          <Skeleton className="h-6 w-48" />
+          <div className="flex-1 h-[1px] bg-gray-100"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="border-b border-gray-50 pb-8">
+              <Skeleton className="h-64 mb-6" />
+              <div className="space-y-4">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   const sportsNews = news.filter(article => article.category?.toLowerCase() === 'deportes').slice(0, 3);
 
@@ -16,8 +40,8 @@ export default function SportsSection() {
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-24 border-t border-gray-100">
-      <div className="flex items-center gap-6 mb-16">
+    <section className="max-w-7xl mx-auto px-6 py-16 border-t border-gray-100">
+      <div className="flex items-center gap-6 mb-12">
         <h2 className="text-sm font-black text-accent uppercase tracking-[0.5em] border-l-4 border-brand pl-6">Crónica Deportiva</h2>
         <div className="flex-1 h-[1px] bg-gray-100"></div>
       </div>

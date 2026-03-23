@@ -12,7 +12,22 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const { selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, news } = useNews();
+  const { selectedCategory, setSelectedCategory, searchQuery, setSearchQuery, news, podcasts, videos } = useNews();
+
+  // Componente para resaltar texto
+  const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+    if (!highlight.trim()) return <span>{text}</span>;
+    const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) => 
+          part.toLowerCase() === highlight.toLowerCase() 
+            ? <span key={i} className="text-brand font-black">{part}</span> 
+            : <span key={i}>{part}</span>
+        )}
+      </span>
+    );
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,18 +42,56 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Filtrar noticias en tiempo real
+  // Filtrar todo tipo de contenido en tiempo real
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
     const query = searchQuery.toLowerCase();
-    return news
+    
+    const matchedNews = news
       .filter(article => 
         article.title?.toLowerCase().includes(query) ||
         article.subtitle?.toLowerCase().includes(query) ||
         article.category?.toLowerCase().includes(query)
       )
-      .slice(0, 8);
-  }, [searchQuery, news]);
+      .map(n => ({ 
+        id: n.id, 
+        title: n.title, 
+        image: n.image, 
+        category: n.category, 
+        type: 'NOTICIA', 
+        url: `/articulo/${n.slug || n.id}` 
+      }));
+
+    const matchedPodcasts = podcasts
+      .filter(podcast => 
+        podcast.title?.toLowerCase().includes(query) ||
+        podcast.description?.toLowerCase().includes(query)
+      )
+      .map(p => ({ 
+        id: p.id, 
+        title: p.title, 
+        image: p.image, 
+        category: 'Podcast', 
+        type: 'PODCAST', 
+        url: '/podcasts' 
+      }));
+
+    const matchedVideos = videos
+      .filter(video => 
+        video.title?.toLowerCase().includes(query) ||
+        video.description?.toLowerCase().includes(query)
+      )
+      .map(v => ({ 
+        id: v.id, 
+        title: v.title, 
+        image: v.thumbnail, 
+        category: 'Video', 
+        type: 'VIDEO', 
+        url: '/videos' 
+      }));
+
+    return [...matchedNews, ...matchedPodcasts, ...matchedVideos].slice(0, 10);
+  }, [searchQuery, news, podcasts, videos]);
 
   const currentDate = new Date().toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -132,19 +185,26 @@ export default function Header() {
                     {/* Mobile Search Results Dropdown */}
                     {showResults && searchResults.length > 0 && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl max-h-60 overflow-y-auto z-50">
-                        {searchResults.map((article) => (
+                        {searchResults.map((result) => (
                           <Link
-                            key={article.id}
-                            href={`/articulo/${article.slug || article.id}`}
+                            key={`${result.type}-${result.id}`}
+                            href={result.url}
                             onClick={handleResultClick}
                             className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
                           >
-                            {article.image && (
-                              <img src={article.image} alt="" className="w-12 h-12 object-cover flex-shrink-0" />
+                            {result.image && (
+                              <img src={result.image} alt="" className="w-12 h-12 object-cover flex-shrink-0" />
                             )}
                             <div className="min-w-0">
-                              <p className="text-xs font-bold text-accent truncate">{article.title}</p>
-                              <p className="text-[10px] text-gray-500">{article.category}</p>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 text-white ${result.type === 'NOTICIA' ? 'bg-accent' : result.type === 'VIDEO' ? 'bg-brand' : 'bg-executive-gold'}`}>
+                                  {result.type}
+                                </span>
+                                <p className="text-[9px] text-gray-500 uppercase tracking-widest">{result.category}</p>
+                              </div>
+                              <p className="text-xs font-bold text-accent truncate">
+                                <HighlightText text={result.title} highlight={searchQuery} />
+                              </p>
                             </div>
                           </Link>
                         ))}
@@ -197,20 +257,29 @@ export default function Header() {
                       )}
                       {/* Desktop Search Results Dropdown */}
                       {showResults && searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto z-50">
-                          {searchResults.map((article) => (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl max-h-96 overflow-y-auto z-50">
+                          {searchResults.map((result) => (
                             <Link
-                              key={article.id}
-                              href={`/articulo/${article.slug || article.id}`}
+                              key={`${result.type}-${result.id}`}
+                              href={result.url}
                               onClick={handleResultClick}
-                              className="flex items-center gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                              className="flex items-center gap-4 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors group/res"
                             >
-                              {article.image && (
-                                <img src={article.image} alt="" className="w-14 h-14 object-cover flex-shrink-0" />
+                              {result.image && (
+                                <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-accent relative">
+                                  <img src={result.image} alt="" className="w-full h-full object-cover group-hover/res:scale-110 transition-transform duration-500" />
+                                </div>
                               )}
                               <div className="min-w-0 flex-1">
-                                <p className="text-xs font-bold text-accent truncate">{article.title}</p>
-                                <p className="text-[10px] text-gray-500">{article.category}</p>
+                                <div className="flex items-center gap-3 mb-1.5">
+                                  <span className={`text-[8px] font-black px-2 py-0.5 text-white tracking-widest ${result.type === 'NOTICIA' ? 'bg-accent' : result.type === 'VIDEO' ? 'bg-brand' : 'bg-executive-gold'}`}>
+                                    {result.type}
+                                  </span>
+                                  <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{result.category}</span>
+                                </div>
+                                <h4 className="text-xs font-serif font-black text-accent truncate group-hover/res:text-brand transition-colors">
+                                  <HighlightText text={result.title} highlight={searchQuery} />
+                                </h4>
                               </div>
                             </Link>
                           ))}

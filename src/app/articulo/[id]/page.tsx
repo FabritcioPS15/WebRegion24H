@@ -47,7 +47,7 @@ const getArticleBySlugOrId = cache(async (slugOrId: string) => {
   const supabase = createSupabaseServerClient();
 
   // Primero intenta por slug (SEO)
-  const { data: bySlug, error: slugError } = await supabase
+  const { data: bySlug } = await supabase
     .from('news')
     .select(ARTICLE_SELECT)
     .eq('slug', slugOrId)
@@ -56,20 +56,20 @@ const getArticleBySlugOrId = cache(async (slugOrId: string) => {
   if (bySlug) return bySlug;
 
   // Fallback por UUID (compatibilidad con links antiguos)
-  const { data: byId, error: idError } = await supabase
-    .from('news')
-    .select(ARTICLE_SELECT)
-    .eq('id', slugOrId)
-    .maybeSingle();
-
-  if (!byId && (slugError || idError)) {
-    console.error(`[getArticleBySlugOrId] Error buscando "${slugOrId}":`, {
-      slugError: slugError?.message,
-      idError: idError?.message,
-    });
+  if (slugOrId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      const { data: byId, error: idError } = await supabase
+        .from('news')
+        .select(ARTICLE_SELECT)
+        .eq('id', slugOrId)
+        .maybeSingle();
+      
+      if (!byId && idError) {
+          console.error(`[getArticleBySlugOrId] Error buscando UUID "${slugOrId}":`, idError.message);
+      }
+      return byId;
   }
 
-  return byId;
+  return null;
 });
 
 export async function generateMetadata(

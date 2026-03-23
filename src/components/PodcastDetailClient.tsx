@@ -2,72 +2,56 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNews } from '../../context/NewsContext';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from './Header';
+import Footer from './Footer';
 import { Play, Clock, Radio, ChevronRight, ChevronLeft, Home } from 'lucide-react';
 import Link from 'next/link';
-import { getPodcastPath } from '../../lib/podcastPath';
+import { getPodcastPath } from '../lib/podcastPath';
 
-export default function PodcastsPage() {
-  const { displayPodcasts: podcasts } = useNews();
+interface PodcastDetailClientProps {
+  podcast: any;
+  recentPodcasts: any[];
+}
 
-  const [selectedPodcast, setSelectedPodcast] = useState(
-    () => podcasts[0] || null,
-  );
+export default function PodcastDetailClient({ podcast, recentPodcasts }: PodcastDetailClientProps) {
+  const podcasts = recentPodcasts;
+  const [selectedPodcast, setSelectedPodcast] = useState(podcast);
   const [isPlaying, setIsPlaying] = useState(false);
   const heroRef = useRef<HTMLDivElement | null>(null);
 
+  // Sync state if prop changes (e.g. navigation between podcasts)
   useEffect(() => {
-    if (!selectedPodcast && podcasts.length > 0) {
-      setSelectedPodcast(podcasts[0]);
-    }
-  }, [podcasts, selectedPodcast]);
-
-  if (!selectedPodcast) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header />
-        <main className="max-w-7xl mx-auto px-6 py-20">
-          <p className="text-center text-sm text-gray-500">
-            No hay podcasts disponibles por el momento.
-          </p>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+    setSelectedPodcast(podcast);
+    setIsPlaying(false);
+  }, [podcast]);
 
   const getYoutubeId = (url: string) => {
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
+    const match = url?.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
 
   const nextPodcast = () => {
     const currentIndex = podcasts.findIndex((p) => p.id === selectedPodcast.id);
     const nextIndex = (currentIndex + 1) % podcasts.length;
-    setSelectedPodcast(podcasts[nextIndex]);
-    setIsPlaying(false);
+    handlePodcastClick(podcasts[nextIndex]);
   };
 
   const prevPodcast = () => {
     const currentIndex = podcasts.findIndex((p) => p.id === selectedPodcast.id);
     const prevIndex = (currentIndex - 1 + podcasts.length) % podcasts.length;
-    setSelectedPodcast(podcasts[prevIndex]);
-    setIsPlaying(false);
+    handlePodcastClick(podcasts[prevIndex]);
   };
 
   const youtubeId = selectedPodcast.link
     ? getYoutubeId(selectedPodcast.link)
     : null;
 
-  const handlePodcastClick = (podcast: any) => {
-    setSelectedPodcast(podcast);
+  const handlePodcastClick = (p: any) => {
+    setSelectedPodcast(p);
     setIsPlaying(false);
-    // Optional: update URL hash or search params for linkability without full navigation
-    window.history.pushState({}, '', getPodcastPath(podcast));
+    window.history.pushState({}, '', getPodcastPath(p));
   };
 
   return (
@@ -85,7 +69,9 @@ export default function PodcastsPage() {
               Inicio
             </Link>
             <ChevronRight className="h-3 w-3 text-gray-300" />
-            <span className="text-gray-400">Podcasts</span>
+            <Link href="/podcasts" className="hover:text-brand transition-colors">
+              Podcasts
+            </Link>
             {selectedPodcast && (
               <>
                 <ChevronRight className="h-3 w-3 text-gray-300" />
@@ -214,12 +200,12 @@ export default function PodcastsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {podcasts.map((podcast, index) => (
+            {podcasts.map((p, index) => (
               <div
-                key={podcast.id}
-                onClick={() => handlePodcastClick(podcast)}
+                key={p.id}
+                onClick={() => handlePodcastClick(p)}
                 className={`group block cursor-pointer transition-all ${
-                  selectedPodcast?.id === podcast.id ? 'opacity-50 grayscale' : ''
+                  selectedPodcast?.id === p.id ? 'opacity-50 grayscale' : ''
                 }`}
               >
                 <motion.div
@@ -230,8 +216,8 @@ export default function PodcastsPage() {
                 >
                 <div className="relative aspect-square overflow-hidden mb-6 bg-accent">
                   <img
-                    src={podcast.image}
-                    alt={podcast.title}
+                    src={p.image}
+                    alt={p.title}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-700 grayscale group-hover:grayscale-0"
                   />
                   <div className="absolute top-4 right-4 bg-black/80 text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
@@ -249,14 +235,14 @@ export default function PodcastsPage() {
                   <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-gray-400">
                     <span className="flex items-center gap-2">
                       <Clock className="h-3 w-3 text-brand" />
-                      {podcast.duration}
+                      {p.duration}
                     </span>
                   </div>
                   <h3 className="text-xl font-serif font-black text-accent leading-tight group-hover:text-brand transition-colors">
-                    {podcast.title}
+                    {p.title}
                   </h3>
                   <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                    {podcast.description}
+                    {p.description}
                   </p>
                 </div>
                 </motion.div>
@@ -270,4 +256,3 @@ export default function PodcastsPage() {
     </div>
   );
 }
-

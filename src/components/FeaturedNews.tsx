@@ -5,19 +5,22 @@ import { useNews } from '../context/NewsContext';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import OptimizedImage from './OptimizedImage';
+import LoadingSkeleton from './LoadingSkeleton';
 
 export default function FeaturedNews() {
-  const { displayNews: news, changedIds, isPreviewMode } = useNews();
+  const { displayNews: news, changedIds, isPreviewMode, isLoading } = useNews();
 
-  const mainNews = news.find(article => article.featured) || news[0] || {
-    id: '1',
-    title: "Último momento",
-    subtitle: "Gobierno anuncia nuevas medidas económicas para el segundo semestre",
-    date: "22 de enero de 2025",
-    time: "14:30",
-    image: "https://images.pexels.com/photos/6894428/pexels-photo-6894428.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    category: "ECONOMÍA"
-  };
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (news.length === 0) {
+    return null;
+  }
+
+  const mainNews = news.find(article => article.featured) || news[0];
+  
+  if (!mainNews) return null;
 
   const sideNews = news.filter(article => !article.featured && article.breaking).slice(0, 3);
 

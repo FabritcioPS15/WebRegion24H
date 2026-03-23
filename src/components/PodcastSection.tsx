@@ -4,12 +4,43 @@ import { Play, Clock, Radio, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useNews } from '../context/NewsContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import AppLink from './AppLink';
 import OptimizedImage from './OptimizedImage';
+import { Skeleton } from './LoadingSkeleton';
+import { getPodcastPath } from '../lib/podcastPath';
 
 export default function PodcastSection() {
-  const { displayPodcasts: podcasts, changedIds, isPreviewMode } = useNews();
+  const { displayPodcasts: podcasts, changedIds, isPreviewMode, isLoading } = useNews();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (isLoading) {
+    return (
+          <section className="bg-accent py-16 overflow-hidden border-y-8 border-brand">
+        <div className="max-w-7xl mx-auto px-6">
+                  <div className="flex items-center gap-6 mb-12 border-b border-white/10 pb-8">
+            <Skeleton className="h-4 w-48 bg-gray-800" />
+            <div className="flex-1 h-[1px] bg-white/5"></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <Skeleton className="h-[500px] w-full bg-gray-800 border-4 border-white/5" />
+            <div className="space-y-10">
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-32 bg-gray-800" />
+                <Skeleton className="h-16 w-full bg-gray-800" />
+                <Skeleton className="h-16 w-3/4 bg-gray-800" />
+              </div>
+              <Skeleton className="h-20 w-full bg-gray-800 border-l-4 border-brand" />
+              <div className="flex justify-between items-center pt-10 border-t border-white/10">
+                <Skeleton className="h-4 w-40 bg-gray-800" />
+                <Skeleton className="h-12 w-32 bg-gray-800" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const currentPodcast = podcasts[currentIndex];
 
   if (!currentPodcast) {
@@ -25,9 +56,9 @@ export default function PodcastSection() {
   };
 
   return (
-    <section className="bg-accent py-24 my-20 overflow-hidden border-y-8 border-brand">
+        <section className="bg-accent py-16 overflow-hidden border-y-8 border-brand">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center gap-6 mb-16 border-b border-white/10 pb-8">
+                <div className="flex items-center gap-6 mb-12 border-b border-white/10 pb-8">
           <h2 className="text-sm font-black text-brand uppercase tracking-[0.5em]">AUDIENCIA EJECUTIVA</h2>
           <div className="flex-1 h-[1px] bg-white/5"></div>
           <div className="px-4 py-2 border border-white/10 text-[10px] font-black text-gray-400 tracking-widest uppercase flex items-center gap-3">
@@ -44,8 +75,8 @@ export default function PodcastSection() {
             transition={{ duration: 0.5 }}
             className="relative"
           >
-            <Link
-              href="/podcasts"
+            <AppLink
+              to={getPodcastPath(currentPodcast)}
               className={`relative block bg-black group cursor-pointer h-[500px] border-4 shadow-2xl transition-all ${isPreviewMode && changedIds.has(currentPodcast.id) ? 'border-red-500 scale-[1.02] shadow-[0_0_40px_rgba(239,68,68,0.3)]' : 'border-white/5'}`}
             >
               <OptimizedImage
@@ -59,7 +90,7 @@ export default function PodcastSection() {
                   <Play className="h-12 w-12 fill-white" />
                 </div>
               </div>
-            </Link>
+            </AppLink>
 
             {/* Navigation Arrows */}
             {podcasts.length > 1 && (
@@ -117,12 +148,12 @@ export default function PodcastSection() {
                 </div>
                 <div>ESTRENO: HOY</div>
               </div>
-              <Link
-                href="/podcasts"
+              <AppLink
+                to="/podcasts"
                 className="bg-white text-accent px-10 py-5 font-black text-[10px] uppercase tracking-[0.4em] hover:bg-brand hover:text-white transition-all shadow-xl active:scale-95 block text-center"
               >
                 Ver Directorio
-              </Link>
+              </AppLink>
             </div>
           </motion.div>
         </div>

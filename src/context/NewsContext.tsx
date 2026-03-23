@@ -198,7 +198,11 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const addPodcast = async (podcast: Omit<Podcast, 'id'>) => {
-    const { data, error } = await supabase.from('podcasts').insert([podcast]).select();
+    const payload: any = { ...podcast };
+    if (!payload.slug && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    const { data, error } = await supabase.from('podcasts').insert([payload]).select();
     if (error) throw error;
     if (data && data[0]) {
       setPodcasts([data[0], ...podcasts]);
@@ -207,7 +211,11 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const updatePodcast = async (id: string, updates: Partial<Podcast>) => {
-    const { data, error } = await supabase.from('podcasts').update(updates).eq('id', id).select();
+    const payload: any = { ...updates };
+    if ((payload.slug === '' || payload.slug == null) && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    const { data, error } = await supabase.from('podcasts').update(payload).eq('id', id).select();
     if (error) throw error;
     if (data && data[0]) {
       setPodcasts(podcasts.map(p => p.id === id ? data[0] : p));
@@ -227,7 +235,11 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const addVideo = async (video: Omit<Video, 'id'>) => {
-    const { data, error } = await supabase.from('videos').insert([video]).select();
+    const payload: any = { ...video };
+    if (!payload.slug && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    const { data, error } = await supabase.from('videos').insert([payload]).select();
     if (error) throw error;
     if (data && data[0]) {
       setVideos([data[0], ...videos]);
@@ -236,7 +248,11 @@ export function NewsProvider({ children }: { children: ReactNode }) {
   };
 
   const updateVideo = async (id: string, updates: Partial<Video>) => {
-    const { data, error } = await supabase.from('videos').update(updates).eq('id', id).select();
+    const payload: any = { ...updates };
+    if ((payload.slug === '' || payload.slug == null) && payload.title) {
+      payload.slug = slugify(String(payload.title));
+    }
+    const { data, error } = await supabase.from('videos').update(payload).eq('id', id).select();
     if (error) throw error;
     if (data && data[0]) {
       setVideos(videos.map(v => v.id === id ? data[0] : v));

@@ -2,15 +2,17 @@
 
 import { useParams } from 'react-router-dom';
 import AppLink from './AppLink';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNews } from '../context/NewsContext';
-import { Clock, Calendar, Bookmark, Share2, ArrowLeft, ChevronRight, Facebook, Twitter, Link2 } from 'lucide-react';
+import { Clock, Calendar, Share2, ArrowLeft, ChevronRight, Facebook, Twitter, Link2 } from 'lucide-react';
 import { NewsArticle } from '../types/news';
 import Header from './Header';
 import Footer from './Footer';
 import SubscriptionForm from './SubscriptionForm';
-import OptimizedImage from './OptimizedImage';  
+import OptimizedImage from './OptimizedImage';
 import { getArticlePath } from '../lib/articlePath';
+import { Skeleton } from './LoadingSkeleton';
+import GoogleAd from './GoogleAd';
 
 interface NewsDetailPageProps {
     previewArticle?: NewsArticle;
@@ -32,10 +34,12 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
     // useNews requires a NewsProvider context (Vite). In Next.js it's not wrapped,
     // so we catch the error and fall back to empty data (previewArticle handles content).
     let news: NewsArticle[] = [];
+    let isLoading = false;
     try {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const ctx = useNews();
         news = ctx.news;
+        isLoading = ctx.isLoading;
     } catch {
         // Outside NewsProvider context (Next.js) - previewArticle handles content
     }
@@ -43,7 +47,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
     const articleId = propArticleId || urlArticleId;
     const article = previewArticle || news.find(a => a.id === articleId || a.slug === articleId);
 
-    // Saved (bookmark) state using localStorage
+    /*
     const [isSaved, setIsSaved] = useState<boolean>(() => {
         if (!articleId) return false;
         try {
@@ -51,6 +55,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
             return saved.includes(articleId);
         } catch { return false; }
     });
+    */
 
     // Share handler
     const handleShare = async () => {
@@ -71,7 +76,8 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
         }
     };
 
-    // Save / unsave to localStorage
+    // Save / unsave to localStorage (Not currently used in UI)
+    /*
     const handleSave = () => {
         if (!articleId) return;
         try {
@@ -83,8 +89,9 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
                 localStorage.setItem('saved_articles', JSON.stringify([...saved, articleId]));
             }
             setIsSaved(!isSaved);
-        } catch { /* silent fail */ }
+        } catch { }
     };
+    */
 
     useEffect(() => {
         if (article) {
@@ -95,6 +102,25 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
             document.title = 'NOTICIAS 24H | Periodismo Independiente';
         };
     }, [article]);
+
+    if (isLoading && !previewArticle) {
+        return (
+            <div className="min-h-screen bg-white">
+                <Header />
+                <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+                    <Skeleton className="h-12 w-3/4 mb-6" />
+                    <Skeleton className="h-4 w-1/4 mb-12" />
+                    <Skeleton className="aspect-video w-full mb-12" />
+                    <div className="space-y-6">
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-6 w-full" />
+                        <Skeleton className="h-6 w-2/3" />
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     if (!article) {
         return (
@@ -136,7 +162,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
 
                     {/* Header spans full width */}
                     <div className="lg:col-span-12">
-                        <header className="mb-12">
+                        <header className="mb-6">
                             <h1 className="text-4xl md:text-7xl font-serif font-black text-accent mb-4 leading-[1.05] tracking-tight">
                                 {article.title}
                             </h1>
@@ -175,7 +201,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
 
                             {/* pull-quote block (prefers pullQuote, falls back to subtitle) */}
                             {(article.pullQuote || article.subtitle) && (
-                                <blockquote className="text-2xl md:text-3xl font-serif italic text-gray-700 mb-10 border-l-4 border-brand pl-8 py-2 leading-relaxed">
+                                <blockquote className="text-1xl md:text-2xl font-serif italic text-gray-700 mb-6 border-l-4 border-brand pl-8 py-2 leading-relaxed">
                                     {article.pullQuote || article.subtitle}
                                 </blockquote>
                             )}
@@ -184,7 +210,7 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
 
                     {/* Main Article Content */}
                     <article className="lg:col-span-8">
-                        <div className="relative aspect-video mb-16 overflow-hidden bg-accent">
+                        <div className="relative aspect-video mb-8 overflow-hidden bg-accent">
                             <OptimizedImage
                                 src={article.image}
                                 alt={article.title}
@@ -202,13 +228,16 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
                         </div>
 
                         {article.intro && (
-                            <div className="prose prose-xl prose-serif max-w-none mb-12">
+                            <div className="prose prose-xl prose-serif max-w-none mb-8">
                                 <h3 className="text-2xl font-serif font-black mb-6">Introducción</h3>
                                 <p className="text-gray-800 font-serif text-xl md:text-2xl leading-relaxed whitespace-pre-wrap">
                                     {article.intro}
                                 </p>
                             </div>
                         )}
+                        
+                        <GoogleAd slot="in-article" className="mb-8" />
+
                         <div className="prose prose-xl prose-serif max-w-none mb-20">
                             <p className="text-gray-800 font-serif text-xl md:text-2xl leading-relaxed whitespace-pre-wrap first-letter:text-8xl first-letter:font-black first-letter:float-left first-letter:mr-4 first-letter:text-accent first-letter:mt-2">
                                 {article.content}
@@ -267,8 +296,9 @@ export default function NewsDetailPage({ previewArticle, articleId: propArticleI
 
                     {/* Sidebar / Sidebar News */}
                     <aside className="lg:col-span-4 flex flex-col gap-12">
+                        <GoogleAd slot="sidebar" label="ESPACIO PUBLICITARIO" />
                         <div className="sticky top-32">
-                            <div className="flex items-center gap-4 mb-8">
+                            <div className="flex items-center gap-4 mb-4">
                                 <h3 className="text-xs font-black text-accent uppercase tracking-[0.3em]">Relacionados</h3>
                                 <div className="flex-1 h-[1px] bg-gray-100"></div>
                             </div>

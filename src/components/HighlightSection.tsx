@@ -5,9 +5,37 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useNews } from '../context/NewsContext';
 import OptimizedImage from './OptimizedImage';
+import { Skeleton } from './LoadingSkeleton';
 
 export default function HighlightSection() {
-  const { displayNews: news, changedIds, isPreviewMode } = useNews();
+  const { displayNews: news, changedIds, isPreviewMode, isLoading } = useNews();
+
+  if (isLoading) {
+    return (
+          <section className="bg-white py-16 border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="space-y-12">
+              <div className="flex items-center gap-6 mb-12">
+                <Skeleton className="h-6 w-48" />
+                <div className="flex-1 h-[1px] bg-gray-100"></div>
+              </div>
+              <div className="space-y-10">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="border-b border-gray-50 pb-8">
+                    <Skeleton className="h-3 w-20 mb-3" />
+                    <Skeleton className="h-8 w-full mb-4" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Skeleton className="h-full min-h-[600px] w-full border-[12px] border-white" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // Use non-featured news for the list
   const listArticles = news.filter(n => !n.featured).slice(0, 4);
@@ -17,7 +45,7 @@ export default function HighlightSection() {
   if (!spotlight) return null;
 
   return (
-    <section className="bg-white py-24 my-20 border-y border-gray-100">
+        <section className="bg-white py-16 border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div className="space-y-12">

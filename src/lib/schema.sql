@@ -37,10 +37,12 @@ ALTER TABLE videos ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('publi
 -- Create Podcasts table
 CREATE TABLE podcasts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  slug TEXT UNIQUE,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   duration TEXT NOT NULL,
   image TEXT NOT NULL,
+  link TEXT,
   live BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -48,6 +50,7 @@ CREATE TABLE podcasts (
 -- Create Videos table
 CREATE TABLE videos (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  slug TEXT UNIQUE,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   thumbnail TEXT NOT NULL,
